@@ -1,0 +1,9 @@
+.vscode
+node_modules
+out
+src/test
+.vscode-test.mjs
+.vscodeignore
+CHANGELOG.md
+eslint.config.mjs
+vsc-extension-quickstart.md
