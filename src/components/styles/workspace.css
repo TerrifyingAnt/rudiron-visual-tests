@@ -1,0 +1,48 @@
+/* workspace.css */
+
+/* Стили для холста с точками */
+#workspace {
+    width: 2000px;
+    height: 2000px;
+    position: absolute;
+    top: 50px;
+    left: 50px;
+    border: 1px solid #ccc;
+    background-color: #222; /* Темный фон для рабочей области */
+    background-image: radial-gradient(circle, #444 1px, transparent 1px); /* Точки для ориентации */
+    background-size: 20px 20px; /* Расстояние между точками */
+    cursor: grab;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.draggable {
+    position: absolute;
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 5px;
+    cursor: move;
+}
+
+.draggable:hover {
+    background-color: #45a049; /* Более яркий зеленый при наведении */
+    transform: scale(1.05); /* Легкое увеличение при наведении */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Тень для эффекта подъема */
+}
+
+.draggable:focus {
+    outline: none; /* Убираем стандартную подсветку фокуса */
+    border: 2px solid #FFEB3B; /* Желтая рамка вокруг блока */
+    box-shadow: 0 0 10px #FFEB3B; /* Светящийся эффект фокуса */
+}
+
+.draggable.selected {
+    background-color: #388e3c; /* Более темный зеленый для выделенного блока */
+    border: 2px solid #FFC107; /* Оранжевая рамка */
+    box-shadow: 0 0 10px rgba(255, 193, 7, 0.8); /* Мягкое свечение оранжевого цвета */
+    transform: scale(1.08); /* Незначительное увеличение */
+    z-index: 1; /* Повышение слоя для выделенного блока */
+}
