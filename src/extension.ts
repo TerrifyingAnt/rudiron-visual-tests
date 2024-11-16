@@ -13,7 +13,7 @@ export function activate(context: vscode.ExtensionContext) {
                     enableScripts: true,
                     localResourceRoots: [
                         vscode.Uri.file(path.join(context.extensionPath, 'out')),
-                        vscode.Uri.file(path.join(context.extensionPath, 'src', 'webview')),
+                        vscode.Uri.file(path.join(context.extensionPath, 'src', 'components', 'webview')),
                         vscode.Uri.file(path.join(context.extensionPath, 'src', 'components', 'styles'))
                     ]
                 }
@@ -21,7 +21,7 @@ export function activate(context: vscode.ExtensionContext) {
 
             const reactAppPath = path.join(context.extensionPath, 'out', 'react-app.js');
 
-            const htmlPath = path.join(context.extensionPath, 'src', 'webview', 'webview.html');
+            const htmlPath = path.join(context.extensionPath, 'src', 'components', 'webview', 'webview.html');
 
             const styleBase = path.join(context.extensionPath, 'src', 'components', 'styles', 'base.css')
             const styleBlocks = path.join(context.extensionPath, 'src', 'components', 'styles', 'blocks.css')
