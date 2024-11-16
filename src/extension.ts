@@ -1,35 +1,36 @@
 import * as vscode from 'vscode';
-import { getWebviewContent } from './webview';
+import * as path from 'path';
+import * as fs from 'fs';
 
 export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.commands.registerCommand('rudiron-visual-test.helloWorld', () => {
             const panel = vscode.window.createWebviewPanel(
-                'arduinoBlocks',
-                'Arduino Blocks',
+                'reactWebview',
+                'React View',
                 vscode.ViewColumn.One,
                 {
-                    enableScripts: true
+                    enableScripts: true,
+                    localResourceRoots: [
+                        vscode.Uri.file(path.join(context.extensionPath, 'out')),
+                        vscode.Uri.file(path.join(context.extensionPath, 'src', 'webview'))
+                    ]
                 }
             );
 
-            panel.webview.onDidReceiveMessage(
-                message => {
-                    if (message.command === 'showCode') {
-                        const doc = vscode.workspace.openTextDocument({
-                            content: message.code,
-                            language: 'cpp'
-                        });
-                        doc.then((document) => vscode.window.showTextDocument(document));
-                    }
-                },
-                undefined,
-                context.subscriptions
-            );
+            const reactAppPath = path.join(context.extensionPath, 'out', 'react-app.js');
+            const stylesPath = path.join(context.extensionPath, 'src', 'webview', 'styles.css');
+            const htmlPath = path.join(context.extensionPath, 'src', 'webview', 'webview.html');
 
-            panel.webview.html = getWebviewContent();
+            let htmlContent = fs.readFileSync(htmlPath, 'utf8');
+            const reactAppUri = panel.webview.asWebviewUri(vscode.Uri.file(reactAppPath));
+            const stylesUri = panel.webview.asWebviewUri(vscode.Uri.file(stylesPath));
+
+            // Заменяем плейсхолдеры в HTML
+            htmlContent = htmlContent.replace('%REACT_APP%', reactAppUri.toString());
+            htmlContent = htmlContent.replace('%STYLESHEET%', stylesUri.toString());
+
+            panel.webview.html = htmlContent;
         })
     );
 }
-
-export function deactivate() {}

@@ -1,0 +1,103 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Arduino Blocks</title>
+    <link rel="stylesheet" href="%STYLESHEET%">
+
+</head>
+<body>
+    <div id="blockPanel">
+        <div class="block" data-type="variable" data-code="int variable = 0;">Variable Declaration</div>
+        <div class="block" data-type="if" data-code="if (condition) {\n  // code\n}">If Statement</div>
+        <div class="block" data-type="digitalWrite" data-code="digitalWrite(pin, HIGH);">Digital Write</div>
+    </div>
+
+    <div id="workspace">
+        <div class="static-block" id="setupBlock">void setup() {\n}</div>
+        <div class="static-block" id="loopBlock">void loop() {\n}</div>
+    </div>
+
+    <button id="generateButton">Generate Arduino Code</button>
+
+    <script>
+        const vscode = acquireVsCodeApi(); // Убедитесь, что запускаете в Webview
+        const workspace = document.getElementById('workspace');
+        const blockPanel = document.getElementById('blockPanel');
+
+        blockPanel.addEventListener('click', (event) => {
+            const block = event.target;
+            if (block.classList.contains('block')) {
+                createDraggableBlock(block.dataset.code || block.textContent);
+            }
+        });
+
+        function createDraggableBlock(code) {
+            const draggableBlock = document.createElement('div');
+            draggableBlock.classList.add('draggable');
+            draggableBlock.textContent = code;
+            draggableBlock.dataset.code = code;
+
+            draggableBlock.style.position = 'absolute';
+            draggableBlock.style.top = '20px';
+            draggableBlock.style.left = '20px';
+
+            draggableBlock.onmousedown = function (event) {
+                event.preventDefault();
+
+                let shiftX = event.clientX - draggableBlock.getBoundingClientRect().left;
+                let shiftY = event.clientY - draggableBlock.getBoundingClientRect().top;
+
+                function moveAt(pageX, pageY) {
+                    draggableBlock.style.left = pageX - shiftX + 'px';
+                    draggableBlock.style.top = pageY - shiftY + 'px';
+                }
+
+                moveAt(event.pageX, event.pageY);
+
+                function onMouseMove(event) {
+                    moveAt(event.pageX, event.pageY);
+                }
+
+                document.addEventListener('mousemove', onMouseMove);
+
+                document.onmouseup = function () {
+                    document.removeEventListener('mousemove', onMouseMove);
+                    document.onmouseup = null;
+                };
+            };
+
+            draggableBlock.ondragstart = function () {
+                return false;
+            };
+
+            workspace.appendChild(draggableBlock);
+        }
+
+        document.getElementById('generateButton').addEventListener('click', () => {
+            let setupCode = '';
+            let loopCode = '';
+
+            const blocks = workspace.getElementsByClassName('draggable');
+            for (let block of blocks) {
+                const top = parseInt(block.style.top);
+                if (top < 150) {
+                    setupCode += '  ' + block.dataset.code + '\n';
+                } else {
+                    loopCode += '  ' + block.dataset.code + '\n';
+                }
+            }
+
+            const code = `
+            void setup() {
+            ${setupCode}}
+
+            void loop() {
+            ${loopCode}}`;
+
+            vscode.postMessage({ command: 'showCode', code });
+        });
+    </script>
+</body>
+</html>
