@@ -1,0 +1,26 @@
+/* button.css */
+
+#generateButton {
+    width: auto;
+    padding: 10px 20px;
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 5px;
+}
+
+#generateButton:hover {
+    background-color: #1976D2; /* Темно-синий при наведении */
+    transform: scale(1.05); /* Легкое увеличение */
+}
+
+#generateButton:active {
+    background-color: #1565C0; /* Еще более темный синий при нажатии */
+    transform: scale(1); /* Возвращение в нормальный размер */
+}

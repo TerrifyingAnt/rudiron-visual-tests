@@ -1,11 +1,12 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Arduino Blocks</title>
-    <link rel="stylesheet" href="%STYLESHEET%">
-
+    <link rel="stylesheet" href="%STYLESHEET_BASE%">
+    <link rel="stylesheet" href="%STYLESHEET_BLOCKS%">
+    <link rel="stylesheet" href="%STYLESHEET_BUTTONS%">
+    <link rel="stylesheet" href="%STYLESHEET_WORKSPACE%">
 </head>
 <body>
     <div id="blockPanel">
@@ -14,9 +15,11 @@
         <div class="block" data-type="digitalWrite" data-code="digitalWrite(pin, HIGH);">Digital Write</div>
     </div>
 
-    <div id="workspace">
-        <div class="static-block" id="setupBlock">void setup() {\n}</div>
-        <div class="static-block" id="loopBlock">void loop() {\n}</div>
+    <div id="workspaceContainer">
+        <div id="workspace">
+            <div class="static-block" id="setupBlock" style="top: 100px; left: 100px;">void setup() {\n}</div>
+            <div class="static-block" id="loopBlock" style="top: 200px; left: 100px;">void loop() {\n}</div>
+        </div>
     </div>
 
     <button id="generateButton">Generate Arduino Code</button>
@@ -25,7 +28,9 @@
         const vscode = acquireVsCodeApi(); // Убедитесь, что запускаете в Webview
         const workspace = document.getElementById('workspace');
         const blockPanel = document.getElementById('blockPanel');
+        let selectedBlock = null; // Хранит текущий выделенный блок
 
+        // Добавляем возможность создавать блоки
         blockPanel.addEventListener('click', (event) => {
             const block = event.target;
             if (block.classList.contains('block')) {
@@ -33,16 +38,24 @@
             }
         });
 
+        // Функция для создания перемещаемого блока
         function createDraggableBlock(code) {
             const draggableBlock = document.createElement('div');
             draggableBlock.classList.add('draggable');
             draggableBlock.textContent = code;
             draggableBlock.dataset.code = code;
 
-            draggableBlock.style.position = 'absolute';
-            draggableBlock.style.top = '20px';
-            draggableBlock.style.left = '20px';
+            // Позиционирование по умолчанию
+            draggableBlock.style.left = '50px';
+            draggableBlock.style.top = '50px';
 
+            // События для выделения блока
+            draggableBlock.addEventListener('click', (event) => {
+                event.stopPropagation(); // Чтобы избежать снятия выделения
+                selectBlock(draggableBlock);
+            });
+
+            // События для перемещения блока
             draggableBlock.onmousedown = function (event) {
                 event.preventDefault();
 
@@ -50,8 +63,8 @@
                 let shiftY = event.clientY - draggableBlock.getBoundingClientRect().top;
 
                 function moveAt(pageX, pageY) {
-                    draggableBlock.style.left = pageX - shiftX + 'px';
-                    draggableBlock.style.top = pageY - shiftY + 'px';
+                    draggableBlock.style.left = pageX - shiftX + workspaceContainer.scrollLeft + 'px';
+                    draggableBlock.style.top = pageY - shiftY + workspaceContainer.scrollTop + 'px';
                 }
 
                 moveAt(event.pageX, event.pageY);
@@ -75,6 +88,17 @@
             workspace.appendChild(draggableBlock);
         }
 
+
+
+        // Снятие выделения при клике на холст
+        workspace.addEventListener('click', () => {
+            if (selectedBlock) {
+                selectedBlock.classList.remove('selected');
+                selectedBlock = null;
+            }
+        });
+
+        // Генерация Arduino-кода
         document.getElementById('generateButton').addEventListener('click', () => {
             let setupCode = '';
             let loopCode = '';
@@ -98,6 +122,50 @@
 
             vscode.postMessage({ command: 'showCode', code });
         });
+
+        document.addEventListener('DOMContentLoaded', () => {
+    const workspace = document.getElementById('workspace');
+    let focusedBlock = null; // Хранит текущий блок в фокусе
+
+        // Функция для установки фокуса на блок
+        function focusBlock(block) {
+            // Снимаем подсветку с предыдущего блока
+            if (focusedBlock) {
+                focusedBlock.classList.remove('focused');
+            }
+            // Устанавливаем фокус на текущий блок
+            focusedBlock = block;
+            focusedBlock.classList.add('focused');
+        }
+
+        // Функция для выделения блока
+        function selectBlock(block) {
+            if (selectedBlock) {
+                selectedBlock.classList.remove('selected');
+            }
+            selectedBlock = block;
+            selectedBlock.classList.add('selected');
+        }
+
+        // Обработчик для добавленных блоков
+        workspace.addEventListener('click', (event) => {
+            const target = event.target;
+
+            // Если кликнули на блок в рабочем пространстве
+            if (target.classList.contains('draggable')) {
+                event.stopPropagation(); // Останавливаем всплытие
+                selectBlock(target); // Устанавливаем выделение
+            } else {
+                // Если кликнули на пустую область, снимаем выделение
+                if (selectedBlock) {
+                    selectedBlock.classList.remove('selected');
+                    selectedBlock = null;
+                }
+            }
+        });
+    });
+
+
     </script>
 </body>
 </html>

@@ -4,10 +4,8 @@ html {
     padding: 0;
     height: 100vh;
     overflow: hidden;
-    background-color: #333;
-    /* Темный фон для всей страницы */
-    color: #fff;
-    /* Белый цвет текста */
+    background-color: #333; /* Темный фон */
+    color: #fff; /* Белый текст */
 }
 
 #container {
@@ -17,17 +15,48 @@ html {
     overflow: hidden;
 }
 
+/* Темная тема для панели с блоками */
 #blockPanel {
     width: 100%;
     padding: 5px;
-    background-color: #f0f0f0;
+    background-color: #444; /* Темный фон панели */
     display: flex;
     gap: 10px;
     position: absolute;
     top: 0;
     left: 0;
+    color: white; /* Белый цвет текста */
 }
 
+.block {
+    padding: 10px;
+    background-color: #4CAF50; /* Зеленый фон */
+    color: white; /* Белый текст */
+    cursor: pointer;
+    border-radius: 5px; /* Скругленные углы */
+    transition: background-color 0.3s, transform 0.2s; /* Плавный переход эффектов */
+}
+
+.block:hover {
+    background-color: #45a049; /* Более яркий зеленый при наведении */
+    transform: scale(1.05); /* Легкое увеличение при наведении */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Тень для эффекта подъема */
+}
+
+.block:focus {
+    outline: none; /* Убираем стандартную подсветку фокуса */
+    border: 2px solid #FFEB3B; /* Желтая рамка вокруг блока */
+    box-shadow: 0 0 10px #FFEB3B; /* Светящийся эффект фокуса */
+}
+
+.block.selected {
+    background-color: #3e8e41; /* Темный зеленый для выделенного блока */
+    border: 2px solid #FFC107; /* Оранжевая рамка */
+    box-shadow: 0 0 10px rgba(255, 193, 7, 0.8); /* Мягкое свечение оранжевого цвета */
+    transform: scale(1.08); /* Незначительное увеличение для выделенного блока */
+}
+
+/* Стили для холста с точками */
 #workspace {
     width: 2000px;
     height: 2000px;
@@ -35,17 +64,14 @@ html {
     top: 50px;
     left: 50px;
     border: 1px solid #ccc;
-    background-color: #fafafa;
+    background-color: #222; /* Темный фон для рабочей области */
+    background-image: radial-gradient(circle, #444 1px, transparent 1px); /* Точки для ориентации */
+    background-size: 20px 20px; /* Расстояние между точками */
     cursor: grab;
-}
-
-
-.block {
-    padding: 10px;
-    background-color: #4CAF50;
-    color: white;
-    cursor: pointer;
-    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
 }
 
 .draggable {
@@ -57,6 +83,29 @@ html {
     cursor: move;
 }
 
+/* Эффекты для блока в рабочем пространстве на hover */
+.draggable:hover {
+    background-color: #45a049; /* Более яркий зеленый при наведении */
+    transform: scale(1.05); /* Легкое увеличение при наведении */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Тень для эффекта подъема */
+}
+
+/* Фокус на блок в рабочем пространстве */
+.draggable:focus {
+    outline: none; /* Убираем стандартную подсветку фокуса */
+    border: 2px solid #FFEB3B; /* Желтая рамка вокруг блока */
+    box-shadow: 0 0 10px #FFEB3B; /* Светящийся эффект фокуса */
+}
+
+/* Выделение блока в рабочем пространстве */
+.draggable.selected {
+    background-color: #3e8e41; /* Темный зеленый для выделенного блока */
+    border: 2px solid #FFC107; /* Оранжевая рамка */
+    box-shadow: 0 0 10px rgba(255, 193, 7, 0.8); /* Мягкое свечение оранжевого цвета */
+    transform: scale(1.08); /* Незначительное увеличение для выделенного блока */
+}
+
+/* Стили для контейнера блоков */
 .container-block {
     padding: 10px;
     background-color: #1E88E5;
@@ -82,6 +131,7 @@ html {
     border-radius: 3px;
 }
 
+/* Стили для сравнения */
 .comparison-block {
     display: flex;
     align-items: center;
@@ -107,7 +157,7 @@ html {
     margin: 0 5px;
 }
 
-/* Стили для самого блока if */
+/* Стили для блока if */
 .if-block {
     position: relative;
     width: 300px;
@@ -119,7 +169,6 @@ html {
     padding: 10px;
 }
 
-/* Стили для контейнера условия */
 .if-condition,
 .if-body {
     width: 100%;
@@ -129,21 +178,17 @@ html {
     border-radius: 5px;
     background-color: #f1f1f1;
     min-height: 30px;
-    /* минимальная высота для места вставки */
     position: relative;
 }
 
 .if-condition {
-    background-color: #c8e6c9;
-    /* Зеленый для условий */
+    background-color: #c8e6c9; /* Зеленый для условий */
 }
 
 .if-body {
-    background-color: #fff9c4;
-    /* Желтый для тела */
+    background-color: #fff9c4; /* Желтый для тела */
 }
 
-/* Стиль для placeholder'ов */
 .placeholder {
     color: #9e9e9e;
     font-style: italic;
@@ -151,7 +196,7 @@ html {
     font-size: 14px;
 }
 
-/* Стиль для добавленных блоков */
+/* Стили для добавленных блоков */
 .block-item {
     border: 1px solid #9e9e9e;
     padding: 5px;
@@ -160,62 +205,19 @@ html {
     margin-top: 5px;
 }
 
-#workspace {
-    width: 2000px;
-    height: 2000px;
-    position: absolute;
-    top: 50px;
-    left: 50px;
-    border: 1px solid #ccc;
-    background-color: #222;
-    /* Темный фон для рабочей области */
-    cursor: grab;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-}
-
-
-.placeholder {
-    color: #9e9e9e;
-    font-style: italic;
-}
-
-.block .container-block .nested-blocks {
-    display: none;
-    /* Скрывать вложенные блоки, если они не нужны */
-}
-
-/* Стили для сетки */
-.grid {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 0;
-    background-image: radial-gradient(circle, #555 1px, transparent 1px);
-    background-size: 20px 20px;
-}
-
-/* Стили для синей кнопки */
+/* Стили для кнопки генерации */
 #generateButton {
     width: auto;
-    /* Уменьшаем ширину */
     padding: 10px 20px;
-    /* Меньше отступов */
     background-color: #2196F3;
-    /* Синий цвет */
     color: white;
     border: none;
     cursor: pointer;
     font-size: 14px;
-    /* Меньше шрифт */
     position: absolute;
     bottom: 10px;
     left: 50%;
     transform: translateX(-50%);
-    /* Центрируем кнопку */
     border-radius: 5px;
 }
+

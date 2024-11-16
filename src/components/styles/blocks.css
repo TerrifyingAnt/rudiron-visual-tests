@@ -1,0 +1,42 @@
+/* blocks.css */
+
+/* Темная тема для панели с блоками */
+#blockPanel {
+    width: 100%;
+    padding: 5px;
+    background-color: #444; /* Темный фон панели */
+    display: flex;
+    gap: 10px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: white; /* Белый цвет текста */
+}
+
+.block {
+    padding: 10px;
+    background-color: #4CAF50; /* Зеленый фон */
+    color: white; /* Белый текст */
+    cursor: pointer;
+    border-radius: 5px; /* Скругленные углы */
+    transition: background-color 0.3s, transform 0.2s; /* Плавный переход эффектов */
+}
+
+.block:hover {
+    background-color: #45a049; /* Более яркий зеленый при наведении */
+    transform: scale(1.05); /* Легкое увеличение при наведении */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Тень для эффекта подъема */
+}
+
+.block:focus {
+    outline: none; /* Убираем стандартную подсветку фокуса */
+    border: 2px solid #FFEB3B; /* Желтая рамка вокруг блока */
+    box-shadow: 0 0 10px #FFEB3B; /* Светящийся эффект фокуса */
+}
+
+.block.selected {
+    background-color: #3e8e41; /* Темный зеленый для выделенного блока */
+    border: 2px solid #FFC107; /* Оранжевая рамка */
+    box-shadow: 0 0 10px rgba(255, 193, 7, 0.8); /* Мягкое свечение оранжевого цвета */
+    transform: scale(1.08); /* Незначительное увеличение для выделенного блока */
+}
