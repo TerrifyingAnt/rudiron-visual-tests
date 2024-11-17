@@ -40,3 +40,60 @@
     box-shadow: 0 0 10px rgba(255, 193, 7, 0.8); /* Мягкое свечение оранжевого цвета */
     transform: scale(1.08); /* Незначительное увеличение для выделенного блока */
 }
+
+/* Стиль блоков setup и loop */
+.block[data-type="setup"],
+.block[data-type="loop"] {
+    background-color: #1e90ff; /* Синий цвет */
+}
+
+/* Контейнеры setup и loop для вложенных блоков */
+.draggable.setup,
+.draggable.loop {
+    background-color: #1e90ff;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.draggable .block-header {
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.draggable .block-body {
+    background-color: #f0f8ff;
+    padding: 10px;
+    margin-top: 5px;
+    min-height: 50px;
+    border-radius: 5px;
+    overflow: hidden;
+    position: relative;
+}
+
+.draggable .block-footer {
+    margin-top: 5px;
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+/* Поля ввода в одну строку */
+.variable-field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: space-between;
+}
+
+/* Стили для select и input в переменной */
+.variable-field select,
+.variable-field input {
+    flex-grow: 1;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 14px;
+}
+
+
