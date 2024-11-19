@@ -16,44 +16,6 @@ const VariableBlock: React.FC<VariableBlockProps> = ({ id, position, onMove }) =
 
     const types = ["int", "float", "double", "char", "string", "bool"];
 
-    const handleMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
-        if (event.target === event.currentTarget) {
-            // If clicked on the workspace, enable panning
-            setIsPanning(true);
-            startPoint.current = { x: event.clientX - position.x, y: event.clientY - position.y };
-        } else {
-            // If clicked on a block, enable dragging
-            event.stopPropagation();
-            setIsDragging(true);
-            startPoint.current = { x: event.clientX - position.x, y: event.clientY - position.y };
-        }
-
-        document.addEventListener("mousemove", handleMouseMove);
-        document.addEventListener("mouseup", handleMouseUp);
-    };
-
-    const handleMouseMove = (event: MouseEvent) => {
-        if (isDragging) {
-            const newPosition = {
-                x: event.clientX - startPoint.current.x,
-                y: event.clientY - startPoint.current.y,
-            };
-            onMove(id, newPosition);
-        } else if (isPanning) {
-            const newOffset = {
-                x: event.clientX - startPoint.current.x,
-                y: event.clientY - startPoint.current.y,
-            };
-            onMove("workspace", newOffset); // Assuming workspace movement is handled
-        }
-    };
-
-    const handleMouseUp = () => {
-        setIsDragging(false);
-        setIsPanning(false);
-        document.removeEventListener("mousemove", handleMouseMove);
-        document.removeEventListener("mouseup", handleMouseUp);
-    };
 
     const handleTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         setVariableType(event.target.value);
@@ -84,9 +46,8 @@ const VariableBlock: React.FC<VariableBlockProps> = ({ id, position, onMove }) =
                     padding: "10px",
                     borderRadius: "5px",
                     boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-                    cursor: isDragging ? "grabbing" : isPanning ? "move" : "grab",
+                    cursor : "grab",
                 }}
-                onMouseDown={handleMouseDown}
             >
                 <label style={{ display: "flex", alignItems: "center" }}>
                     Тип:

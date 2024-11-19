@@ -9,33 +9,24 @@ const Workspace: React.FC = () => {
     const [blocks, setBlocks] = useState<{ id: string; position: { x: number; y: number }; element: JSX.Element }[]>([]);
     const startPoint = useRef({ x: 0, y: 0 });
 
-    const handleMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
-        setIsPanning(true);
-        startPoint.current = { x: event.clientX - offset.x, y: event.clientY - offset.y };
+    const handleMouseDownCanvas = (event: React.MouseEvent<HTMLDivElement>) => {
+        if ((event.target as HTMLElement).classList.contains("workspace")) {
+            setIsPanning(true);
+            startPoint.current = { x: event.clientX - offset.x, y: event.clientY - offset.y };
+        }
     };
 
-    const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
+    const handleMouseMoveCanvas = (event: React.MouseEvent<HTMLDivElement>) => {
         if (isPanning) {
             const newOffset = {
                 x: event.clientX - startPoint.current.x,
                 y: event.clientY - startPoint.current.y,
             };
             setOffset(newOffset);
-
-            // Move all blocks with the workspace offset
-            setBlocks((prevBlocks) =>
-                prevBlocks.map((block) => ({
-                    ...block,
-                    position: {
-                        x: block.position.x + (newOffset.x - offset.x),
-                        y: block.position.y + (newOffset.y - offset.y),
-                    },
-                }))
-            );
         }
     };
 
-    const handleMouseUp = () => {
+    const handleMouseUpCanvas = () => {
         setIsPanning(false);
     };
 
@@ -43,7 +34,7 @@ const Workspace: React.FC = () => {
         const id = `${Date.now()}`;
         setBlocks((prevBlocks) => [
             ...prevBlocks,
-            { id, position, element: React.cloneElement(block, { id, position }) },
+            { id, position, element: React.cloneElement(block, { id, position, onMove: moveBlock }) },
         ]);
     };
 
@@ -58,7 +49,7 @@ const Workspace: React.FC = () => {
     const blockDefinitions = [
         {
             id: "variable",
-            label: "Объявление переменной", // Русское название блока
+            label: "Объявление переменной",
             createBlock: () => (
                 <VariableBlock
                     key={Date.now()}
@@ -68,7 +59,6 @@ const Workspace: React.FC = () => {
                 />
             ),
         },
-        // Можно добавить другие блоки с русскими названиями
     ];
 
     return (
@@ -85,14 +75,17 @@ const Workspace: React.FC = () => {
             />
             <div
                 className="workspace"
-                onMouseDown={handleMouseDown}
-                onMouseMove={handleMouseMove}
-                onMouseUp={handleMouseUp}
-                onMouseLeave={handleMouseUp}
+                onMouseDown={handleMouseDownCanvas}
+                onMouseMove={handleMouseMoveCanvas}
+                onMouseUp={handleMouseUpCanvas}
+                onMouseLeave={handleMouseUpCanvas}
                 style={{
                     cursor: isPanning ? "grabbing" : "grab",
                     backgroundPosition: `${offset.x}px ${offset.y}px`,
                     backgroundColor: "#2b2b2b",
+                    position: "relative",
+                    width: "100vw",
+                    height: "100vh",
                 }}
             >
                 {blocks.map((block) => (
@@ -100,8 +93,8 @@ const Workspace: React.FC = () => {
                         key={block.id}
                         style={{
                             position: "absolute",
-                            left: block.position.x,
-                            top: block.position.y,
+                            left: block.position.x + offset.x,
+                            top: block.position.y + offset.y,
                         }}
                     >
                         {block.element}
