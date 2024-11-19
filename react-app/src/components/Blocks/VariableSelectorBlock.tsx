@@ -21,7 +21,7 @@ const VariableSelectorBlock: React.FC<VariableSelectorBlockProps> = ({ id, posit
     };
 
     const generateCode = (): string => {
-        return selectedVariable ? `useVariable(${selectedVariable});` : "// No variable selected";
+        return selectedVariable ? `${selectedVariable};` : "// No variable selected";
     };
 
     const disableDragging = () => setIsDraggingEnabled(false);
