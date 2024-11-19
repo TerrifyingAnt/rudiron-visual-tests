@@ -1,4 +1,5 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect } from "react";
+import { useVariableContext } from "./VariableContext";
 import Block from "./BlockTemplate";
 
 interface VariableBlockProps {
@@ -10,12 +11,19 @@ interface VariableBlockProps {
 const VariableBlock: React.FC<VariableBlockProps> = ({ id, position, onMove }) => {
     const [variableType, setVariableType] = useState("int");
     const [variableName, setVariableName] = useState(`var${id}`);
-    const [isDragging, setIsDragging] = useState(false);
-    const startPoint = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
-    const [isPanning, setIsPanning] = useState(false);
+    const [hasConflict, setHasConflict] = useState(false);
+    const { variables, updateVariable } = useVariableContext();
 
-    const types = ["int", "float", "double", "char", "string", "bool"];
+    useEffect(() => {
+        updateVariable(id, variableName);
+    }, [variableName, id, updateVariable]);
 
+    useEffect(() => {
+        const conflict = variables.some(
+            (variable) => variable.name === variableName && variable.id !== id
+        );
+        setHasConflict(conflict);
+    }, [variables, variableName, id]);
 
     const handleTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         setVariableType(event.target.value);
@@ -24,6 +32,7 @@ const VariableBlock: React.FC<VariableBlockProps> = ({ id, position, onMove }) =
     const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setVariableName(event.target.value);
     };
+
     const generateCode = (): string => {
         return `${variableType} ${variableName};`;
     };
@@ -46,7 +55,7 @@ const VariableBlock: React.FC<VariableBlockProps> = ({ id, position, onMove }) =
                     padding: "10px",
                     borderRadius: "5px",
                     boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-                    cursor : "grab",
+                    border: hasConflict ? "2px solid red" : "2px solid transparent",
                 }}
             >
                 <label style={{ display: "flex", alignItems: "center" }}>
@@ -61,7 +70,7 @@ const VariableBlock: React.FC<VariableBlockProps> = ({ id, position, onMove }) =
                             border: "1px solid #ccc",
                         }}
                     >
-                        {types.map((type) => (
+                        {["int", "float", "double", "char", "string", "bool"].map((type) => (
                             <option key={type} value={type}>
                                 {type}
                             </option>
