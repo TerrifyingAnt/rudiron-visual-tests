@@ -1,6 +1,8 @@
 import React, { useState, useRef } from "react";
 import Menu from "./Menu";
 import VariableBlock from "./Blocks/VariableBlock";
+import VariableSelectorBlock from "./Blocks/VariableSelectorBlock";
+
 import "../App.css";
 
 const Workspace: React.FC = () => {
@@ -52,6 +54,18 @@ const Workspace: React.FC = () => {
             label: "Объявление переменной",
             createBlock: () => (
                 <VariableBlock
+                    key={Date.now()}
+                    id={Date.now().toString()}
+                    position={{ x: 0, y: 0 }}
+                    onMove={moveBlock}
+                />
+            ),
+        },
+        {
+            id: "variable-selector", // Уникальный идентификатор для нового блока
+            label: "Выбор переменной", // Отображаемое название
+            createBlock: () => (
+                <VariableSelectorBlock
                     key={Date.now()}
                     id={Date.now().toString()}
                     position={{ x: 0, y: 0 }}
