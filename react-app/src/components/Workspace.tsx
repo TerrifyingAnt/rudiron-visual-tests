@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import Menu from "./Menu";
 import VariableBlock from "./Blocks/VariableBlock";
 import VariableSelectorBlock from "./Blocks/VariableSelectorBlock";
+import SetupBlock from "./Blocks/SetupBlock";
 
 import "../App.css";
 
@@ -66,6 +67,18 @@ const Workspace: React.FC = () => {
             label: "Выбор переменной", // Отображаемое название
             createBlock: () => (
                 <VariableSelectorBlock
+                    key={Date.now()}
+                    id={Date.now().toString()}
+                    position={{ x: 0, y: 0 }}
+                    onMove={moveBlock}
+                />
+            ),
+        },
+        {
+            id: "setup",
+            label: "Setup Block",
+            createBlock: () => (
+                <SetupBlock
                     key={Date.now()}
                     id={Date.now().toString()}
                     position={{ x: 0, y: 0 }}
