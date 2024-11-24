@@ -46,21 +46,14 @@ const Workspace: React.FC = () => {
                     id,
                     position,
                     onMove: moveBlock,
-                    onCodeChange: updateBlockCode, // Ensure it's passed
+                    onCodeChange: (blockId: string, innerCode: string[]) => {
+                        updateBlockCode(blockId, innerCode.join("\n")); // Convert string[] to string
+                    },
                 }),
             },
         ]);
     };
 
-    const moveBlock = (id: string, position: { x: number; y: number }) => {
-        setBlocks((prevBlocks) =>
-            prevBlocks.map((block) =>
-                block.id === id
-                    ? { ...block, position, element: React.cloneElement(block.element, { position }) }
-                    : block
-            )
-        );
-    };
 
     const handleDragEnter = (event: React.DragEvent<HTMLDivElement>) => {
         event.preventDefault();
@@ -91,31 +84,53 @@ const Workspace: React.FC = () => {
     };
 
     const generateCode = () => {
+        // Helper function to recursively generate code for a block and its children
+        // const generateBlockCode = (blockId: string): string => {
+        //     const block = blocks.find((b) => b.id === blockId);
+        //     if (!block) return "";
+    
+        //     const { element, position } = block;
+        //     const blockType = element.props.type;
+        //     const children = element.props.childrenBlocks || [];
+        //     const blockCode = element.props.code;
+    
+        //     // Generate code for child blocks recursively
+        //     const childrenCode = children.map((childId: string) => generateBlockCode(childId)).join("\n");
+    
+        //     // Insert children code into the parent block's structure
+        //     if (blockType === "setup") {
+        //         return `void setup() {\n${childrenCode}\n}`;
+        //     }
+    
+        //     return blockCode + (childrenCode ? `\n${childrenCode}` : "");
+        // };
+    
         let setupCode = "";
-        let loopCode = "";
-
-        const workspaceElement = workspaceRef.current;
-        if (workspaceElement) {
-            // Convert the HTMLCollection to an array
-            const blocks = Array.from(workspaceElement.getElementsByClassName("draggable"));
-            blocks.forEach((blockElement) => {
-                const block = blockElement as HTMLElement;
-                const top = parseInt(block.style.top || "0", 10);
-                const code = block.dataset.code || "";
-                console.log(block)
-                setupCode += ` ${code}\n`
-            });
-        }
-
-        console.log("Generated Code:\n", setupCode);
+        let otherCode = "";
+    
+        blocks.forEach((block) => {
+            // Only generate top-level blocks (blocks without a parent)
+            // if (!block.parentId) {
+            //     if (block.element.props.type === "setup") {
+            //         setupCode += generateBlockCode(block.id) + "\n";
+            //     } else {
+            //         otherCode += generateBlockCode(block.id) + "\n";
+            //     }
+            // }
+            console.log(block);
+        });
+    
+        const finalCode = `${setupCode}\n${otherCode}`;
+        console.log("Generated Code:\n", finalCode);
     };
+    
+    
 
 
     const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
         event.preventDefault();
         setIsWorkspaceHovered(false);
     };
-
     const blockDefinitions = [
         {
             id: "variable",
@@ -126,7 +141,7 @@ const Workspace: React.FC = () => {
                     id={Date.now().toString()}
                     position={{ x: 0, y: 0 }}
                     onMove={moveBlock}
-                    code="int myVariable = 10;"
+                    code={"int " + Date.now().toString() + " = 0;"} 
                     onCodeChange={updateBlockCode} // Ensure this is passed
                 />
             ),
@@ -153,8 +168,12 @@ const Workspace: React.FC = () => {
                     key={Date.now()}
                     id={Date.now().toString()}
                     position={{ x: 0, y: 0 }}
-                    onMove={moveBlock}
                     code="void setup() { // setup code }"
+                    onNest={nestBlock}
+                    onUnnest={unnestBlock}
+                    onMove={moveBlock}
+                    childrenBlocks={[]}
+            
                 />
             ),
         },
@@ -168,10 +187,61 @@ const Workspace: React.FC = () => {
                     position={{ x: 0, y: 0 }}
                     onMove={moveBlock}
                     code="Serial.begin(9600);"
+                    onCodeChange={updateBlockCode}
                 />
             ),
         },
     ];
+
+    const moveBlock = (id: string, position: { x: number; y: number }) => {
+        setBlocks((prevBlocks) =>
+            prevBlocks.map((block) =>
+                block.id === id ? { ...block, position } : block
+            )
+        );
+    };
+
+    const nestBlock = (parentId: string, childId: string) => {
+        setBlocks((prevBlocks) =>
+            prevBlocks.map((block) => {
+                if (block.id === parentId) {
+                    const childrenBlocks = block.element.props.childrenBlocks || [];
+                    return {
+                        ...block,
+                        element: React.cloneElement(block.element, {
+                            childrenBlocks: [...childrenBlocks, childId],
+                        }),
+                    };
+                }
+                if (block.id === childId) {
+                    return { ...block, parentId };
+                }
+                return block;
+            })
+        );
+    };
+
+    const unnestBlock = (parentId: string, childId: string) => {
+        setBlocks((prevBlocks) =>
+            prevBlocks.map((block) => {
+                if (block.id === parentId) {
+                    const childrenBlocks = block.element.props.childrenBlocks.filter(
+                        (id: string) => id !== childId
+                    );
+                    return {
+                        ...block,
+                        element: React.cloneElement(block.element, {
+                            childrenBlocks,
+                        }),
+                    };
+                }
+                if (block.id === childId) {
+                    return { ...block, parentId: undefined };
+                }
+                return block;
+            })
+        );
+    };
 
     return (
         <div className="app-container" style={{ display: "flex", height: "100vh" }}>

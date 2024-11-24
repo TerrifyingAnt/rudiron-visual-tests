@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Block from "../BlockTemplate";
 import "./SetupBlock.css";
 
@@ -6,60 +6,68 @@ interface SetupBlockProps {
     id: string;
     position: { x: number; y: number };
     onMove: (id: string, position: { x: number; y: number }) => void;
+    onNest: (parentId: string, childId: string) => void; // Notify workspace of nesting
+    onUnnest: (parentId: string, childId: string) => void; // Notify workspace of unnesting
     code: string;
+    childrenBlocks: string[]; // IDs of nested blocks
 }
 
-const SetupBlock: React.FC<SetupBlockProps> = ({ id, position, onMove, code }) => {
-    const [isHovered, setIsHovered] = useState(false);
-    const [isCollapsed, setIsCollapsed] = useState(true);
-    const [innerBlocks, setInnerBlocks] = useState<any[]>([]);
+const SetupBlock: React.FC<SetupBlockProps> = ({
+    id,
+    position,
+    onMove,
+    onNest,
+    onUnnest,
+    code,
+    childrenBlocks,
+}) => {
+    const [localChildren, setLocalChildren] = useState<string[]>(childrenBlocks);
+
+    // Sync local state with props for reactive updates
+    useEffect(() => {
+        setLocalChildren(childrenBlocks);
+        console.log(`[SetupBlock ${id}] Updated childrenBlocks:`, childrenBlocks);
+    }, [childrenBlocks]);
 
     const handleDragEnter = (event: React.DragEvent<HTMLDivElement>) => {
         event.preventDefault();
-        setIsHovered(true);
     };
 
     const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
-        event.preventDefault(); // Необходимо для корректной работы drop-события
+        event.preventDefault();
     };
-
-    const handleDragLeave = () => setIsHovered(false);
 
     const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
         event.preventDefault();
-        const newBlock = { id: `block-${Date.now()}` }; // Генерация нового блока
-        setInnerBlocks((prevBlocks) => [...prevBlocks, newBlock]);
-        setIsCollapsed(false);
-        setIsHovered(false);
-    };
 
-    const handleRemoveBlock = (blockIndex: number) => {
-        const updatedBlocks = innerBlocks.filter((_, idx) => idx !== blockIndex);
-        setInnerBlocks(updatedBlocks);
-        if (updatedBlocks.length === 0) {
-            setIsCollapsed(true);
+        const childId = event.dataTransfer.getData("blockId");
+        if (childId && !localChildren.includes(childId)) {
+            console.log(`[SetupBlock ${id}] Adding child: ${childId}`);
+            onNest(id, childId); // Notify workspace of nesting
         }
     };
 
+    const handleRemoveChild = (childId: string) => {
+        console.log(`[SetupBlock ${id}] Removing child: ${childId}`);
+        onUnnest(id, childId); // Notify workspace of unnesting
+    };
+
     return (
-        <Block id={id} type="setup" position={position} code="void setup() {}" onMove={onMove}>
+        <Block id={id} type="setup" position={position} code={code} onMove={onMove}>
             <div className="block-header">Инициализация</div>
             <div
-                className={`block-body ${isCollapsed ? "collapsed" : ""} ${isHovered ? "drag-over" : ""} ${
-                    innerBlocks.length === 0 ? "empty" : ""
-                }`}
+                className="block-body"
                 onDragEnter={handleDragEnter}
                 onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
             >
-                {innerBlocks.length === 0 ? (
+                {localChildren.length === 0 ? (
                     <p>Перетащите блоки сюда</p>
                 ) : (
-                    innerBlocks.map((block, index) => (
-                        <div key={block.id} className="draggable-block" draggable>
-                            {`Block ${index + 1}`}
-                            <button onClick={() => handleRemoveBlock(index)}>Удалить</button>
+                    localChildren.map((childId) => (
+                        <div key={childId} className="child-block">
+                            {`Block ${childId}`}
+                            <button onClick={() => handleRemoveChild(childId)}>Удалить</button>
                         </div>
                     ))
                 )}

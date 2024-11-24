@@ -7,11 +7,14 @@ interface SerialInitBlockProps {
     position: { x: number; y: number };
     onMove: (id: string, position: { x: number; y: number }) => void;
     code: string; // Code passed to the block
+    onCodeChange: (id: string, newCode: string) => void; // Callback for code updates
+
 }
 
-const SerialInitBlock: React.FC<SerialInitBlockProps> = ({ id, position, onMove, code }) => {
+const SerialInitBlock: React.FC<SerialInitBlockProps> = ({ id, position, onMove, code, onCodeChange }) => {
     const [baudRate, setBaudRate] = useState<number | null>(9600); // Default baud rate
     const [isDraggingEnabled, setIsDraggingEnabled] = useState(true);
+    const [currentCode, setCode] = useState(`Serial.begin(${baudRate});`);
 
     // Захардкоженные скорости работы Serial порта
     const baudRates = [
@@ -27,6 +30,14 @@ const SerialInitBlock: React.FC<SerialInitBlockProps> = ({ id, position, onMove,
     const handleBaudRateChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         const rate = parseInt(event.target.value, 10);
         setBaudRate(rate);
+        const newCode = `Serial.begin(${rate});`;
+        setCode(newCode);
+    
+        if (typeof onCodeChange === "function") {
+            onCodeChange(id, newCode); // Notify parent
+        } else {
+            console.warn("onCodeChange prop is missing or not a function.");
+        }
     };
 
     // Управление перетаскиванием
@@ -38,7 +49,7 @@ const SerialInitBlock: React.FC<SerialInitBlockProps> = ({ id, position, onMove,
     useEffect(() => {
         // Обновляем `code` при изменении скорости
         if (baudRate !== null) {
-            const newCode = generateCode(baudRate);
+            //const newCode = generateCode(baudRate);
             onMove(id, { ...position }); // Обновляем позицию, если необходимо
             //console.log(`Updated code for block ${id}: ${newCode}`);
         }
