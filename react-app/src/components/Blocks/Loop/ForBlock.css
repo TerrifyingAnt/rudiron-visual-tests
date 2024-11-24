@@ -1,0 +1,60 @@
+/* ForBlock.css */
+
+/* Стиль основного блока */
+.for-block {
+    background-color: #f5f5f5;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Заголовок */
+.for-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.for-header label {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+}
+
+.for-input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    flex: 1;
+}
+
+/* Контейнер для вложенных блоков */
+.for-body {
+    border: 1px dashed #ccc;
+    border-radius: 8px;
+    padding: 16px;
+    min-height: 100px;
+    background-color: #fafafa;
+    text-align: center;
+}
+
+.for-placeholder {
+    color: #888;
+    font-size: 14px;
+}
+
+/* Вложенные блоки */
+.child-block {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    background-color: #e8e8e8;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 8px;
+}

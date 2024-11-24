@@ -22,14 +22,15 @@ const Menu: React.FC<MenuProps> = ({ blocks, onAddBlockToWorkspace }) => {
 
     // Типизация категорий
     const categories: Record<
-    "Условия" | "Основные функции" | "Переменные" | "Чтение/Запись" | "Монитор порта",
+    "Условия" | "Основные функции" | "Переменные" | "Чтение/Запись" | "Монитор порта" | "Циклы",
     { blocks: string[]; color: string }
 > = {
-    "Условия": { blocks: ["delay"], color: "#D13A9A" }, // pink
+    "Условия": { blocks: ["delay", "if"], color: "#D13A9A" }, // pink
     "Основные функции": { blocks: ["setup", "loop"], color: "#7e57c2" }, // Blue
     "Переменные": { blocks: ["variable", "variable-selector"], color: "#66bb6a" }, // Green
-    "Чтение/Запись": { blocks: ["digital-read", "digital-write", "pinmode"], color: "#d32f2f" }, // Purple
+    "Чтение/Запись": { blocks: ["digital-read", "digital-write", "analog-read", "analog-write", "pinmode"], color: "#d32f2f" }, // Purple
     "Монитор порта": { blocks: ["serial-init"], color: "#D1C03A" }, // Red
+    "Циклы": {blocks: ["for"], color: "#4D74F4"}
 };
 
     // Функция для переключения состояния свёрнутой категории
@@ -126,6 +127,15 @@ const Menu: React.FC<MenuProps> = ({ blocks, onAddBlockToWorkspace }) => {
             </div>
             {!collapsedCategories["Монитор порта"] && (
                 <div>{renderBlocksByCategory("Монитор порта")}</div>
+            )}
+
+            {/* Категория: Циклы */}
+            <div className="menu-category" onClick={() => toggleCategory("Циклы")}>
+            Монитор порта
+                <span>{collapsedCategories["Циклы"] ? "▲" : "▼"}</span>
+            </div>
+            {!collapsedCategories["Циклы"] && (
+                <div>{renderBlocksByCategory("Циклы")}</div>
             )}
         </div>
     );

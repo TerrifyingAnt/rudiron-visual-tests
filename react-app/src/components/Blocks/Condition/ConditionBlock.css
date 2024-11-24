@@ -1,0 +1,49 @@
+/* DelayBlock.css */
+
+/* Общий стиль блока задержки */
+.delay-block {
+    background-color: #f9f9f9; /* Светлый фон для блока */
+    border: 2px solid #ccc; /* Серый контур */
+    border-radius: 8px; /* Скругленные углы */
+    padding: 16px; /* Внутренний отступ */
+    display: flex;
+    flex-direction: column;
+    gap: 8px; /* Расстояние между элементами */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Легкая тень */
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.delay-block.error {
+    border-color: #ff6b6b; /* Красная рамка для ошибок */
+    box-shadow: 0 4px 8px rgba(255, 107, 107, 0.5); /* Красноватая тень */
+}
+
+/* Метка для ввода значения задержки */
+.delay-value-label {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333; /* Темный цвет текста */
+}
+
+/* Ввод для значения задержки */
+.delay-value-input {
+    flex: 1; /* Занимает всю доступную ширину */
+    padding: 8px; /* Внутренний отступ */
+    border: 1px solid #ccc; /* Серый контур */
+    border-radius: 4px; /* Скругленные углы */
+    font-size: 14px; /* Размер шрифта */
+    transition: border-color 0.3s;
+}
+
+.delay-value-input:focus {
+    border-color: #4caf50; /* Зеленый контур при фокусе */
+    outline: none; /* Убираем стандартный фокус */
+}
+
+/* Единица измерения задержки */
+.delay-value-unit {
+    font-size: 14px;
+    font-weight: bold;
+    color: #666; /* Серый текст */
+    margin-left: 8px; /* Отступ слева */
+}
