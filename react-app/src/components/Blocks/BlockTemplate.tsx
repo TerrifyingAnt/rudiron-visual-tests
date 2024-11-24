@@ -1,4 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
+// import '../../style/vars.css';
+// import '../../style/fonts.css';
 
 interface BlockProps {
     id: string;
@@ -7,41 +9,43 @@ interface BlockProps {
     children?: React.ReactNode;
     code: string;
     onMove: (id: string, position: { x: number; y: number }) => void;
-    onNest?: (parentId: string, childId: string) => void; // Для уведомления о вложении
 }
 
-const Block: React.FC<BlockProps> = ({
-    id,
-    type,
-    position,
-    children,
-    code,
-    onMove,
-    onNest,
-}) => {
+const Block: React.FC<BlockProps> = ({ id, type, position, children, code, onMove }) => {
     const blockRef = useRef<HTMLDivElement>(null);
     const [dragging, setDragging] = useState(false);
-    const [startPosition, setStartPosition] = useState({ x: 0, y: 0 });
+    const [startPosition, setStartPosition] = useState({ x: 0, y: 0 }); // Начальная позиция блока
     const [currentOffset, setCurrentOffset] = useState({ x: 0, y: 0 });
-    const [nested, setNested] = useState(false); // Отслеживаем состояние вложенности
 
     const handleMouseDown = (event: React.MouseEvent) => {
         setDragging(true);
         document.body.classList.add("dragging");
 
-        setCurrentOffset({ x: event.clientX, y: event.clientY });
-        setStartPosition({ x: position.x, y: position.y });
+        const rect = blockRef.current!.getBoundingClientRect();
+
+        // Устанавливаем начальное смещение
+        setCurrentOffset({
+            x: event.clientX,
+            y: event.clientY,
+        });
+
+        // Сохраняем начальные координаты блока
+        setStartPosition({
+            x: position.x,
+            y: position.y,
+        });
     };
 
     const handleMouseMove = (event: MouseEvent) => {
-        if (dragging && !nested) {
-            const deltaX = event.clientX - currentOffset.x;
+        if (dragging) {
+            const deltaX = event.clientX - currentOffset.x; // Смещение от текущей позиции
             const deltaY = event.clientY - currentOffset.y;
 
-            const newX = startPosition.x + deltaX;
-            const newY = startPosition.y + deltaY;
+            const newX = startPosition.x + deltaX - position.x;
+            const newY = startPosition.y + deltaY - position.y;
 
-            onMove(id, { x: newX, y: newY });
+            // Вызываем onMove только если положение блока изменилось
+            onMove(id, { x: startPosition.x + deltaX, y: startPosition.y + deltaY });
         }
     };
 
@@ -53,45 +57,15 @@ const Block: React.FC<BlockProps> = ({
             const target = document.elementFromPoint(event.clientX, event.clientY);
             if (target && target.classList.contains("block-body")) {
                 const container = target as HTMLElement;
+                container.appendChild(blockRef.current!);
 
-                // Уведомляем о вложении
-                if (onNest) {
-                    const parentId = container.dataset.blockId; // ID родительского блока
-                    if (parentId) {
-                        onNest(parentId, id);
-                        nestBlock(container); // Устанавливаем вложение
-                    }
-                }
+                // Сбрасываем стили позиции для вложенных блоков
+                blockRef.current!.style.position = "relative";
+                blockRef.current!.style.left = "0";
+                blockRef.current!.style.top = "0";
+
+                adjustBlockSize(container); // Обновляем размер контейнера
             }
-        }
-    };
-
-    const nestBlock = (container: HTMLElement) => {
-        setNested(true);
-    
-        // Preserve the original design of the nested block
-        const nestedBlock = blockRef.current!;
-        nestedBlock.style.position = "relative";
-        nestedBlock.style.left = "0";
-        nestedBlock.style.top = "0";
-        nestedBlock.style.margin = "4px auto"; // Center nested block
-        nestedBlock.style.width = "auto"; // Maintain original width
-    
-        // Adjust parent container to accommodate the nested block
-        container.appendChild(nestedBlock);
-    
-        // Ensure the parent block resizes
-        adjustParentSize(container);
-    };
-    
-    const adjustParentSize = (container: HTMLElement) => {
-        // Get the parent block element
-        const parentBlock = container.closest(".draggable") as HTMLElement;
-    
-        if (parentBlock) {
-            // Calculate the new height of the parent block based on its content
-            const contentHeight = container.scrollHeight + 20; // Add padding for spacing
-            parentBlock.style.height = `${contentHeight}px`;
         }
     };
 
@@ -111,39 +85,35 @@ const Block: React.FC<BlockProps> = ({
             document.removeEventListener("mousemove", handleMouseMove);
             document.removeEventListener("mouseup", handleMouseUp);
         };
-    }, [dragging, currentOffset, startPosition, position, nested]);
-
-    const handleDragStart = (event: React.DragEvent<HTMLDivElement>) => {
-        event.dataTransfer.setData("blockId", id);
-        console.log("Dragging block with ID:", id);
-    };
-
-    const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
-        event.preventDefault();
-    };
-
-    const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
-        event.preventDefault();
-        const childId = event.dataTransfer.getData("blockId");
-        console.log(`Dropped block with ID: ${childId} into block ID: ${id}`);
-        if (onNest) onNest(id, childId);
-    };
+    }, [dragging, currentOffset, startPosition, position]);
 
     return (
         <div
             ref={blockRef}
             className={`draggable block ${type}`}
-            data-block-id={id}
-            draggable={true}
-            onDragStart={handleDragStart}
-            onDragOver={handleDragOver}
-            onDrop={handleDrop}
-            
+            style={{
+                position: "absolute",
+                left: position.x,
+                top: position.y,
+                cursor: dragging ? "grabbing" : "grab",
+                userSelect: "none",
+                padding: "8px",
+                borderRadius: "20px",
+                color: "#fff", // Белый текст
+                border: "none", // Убираем любую обводку
+                boxShadow: dragging
+                    ? "0px 4px 6px rgba(0, 0, 0, 0.2)" // Тень при перетаскивании (мягкий эффект)
+                    : "none", // Убираем тень, когда не перетаскиваем
+                transition: dragging
+                    ? "none"
+                    : "box-shadow 0.2s ease, transform 0.2s ease", // Плавный эффект при отпускании
+            }}
             onMouseDown={handleMouseDown}
         >
             <div className="block-content">{children || type}</div>
         </div>
     );
+    
 };
 
 export default Block;
