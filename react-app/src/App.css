@@ -1,4 +1,4 @@
-/* Styles for the workspace */
+/* Canvas-specific styles */
 .workspace {
   flex-grow: 1;
   background-color: #1e1e1e; /* Dark background */
@@ -10,39 +10,31 @@
   transition: border 0.2s ease, background-color 0.2s ease; /* Smooth transition */
 }
 
-/* Highlight workspace when dragging */
-.workspace.drag-over {
-  border: 3px solid #ff9800; /* Orange border when block is dragged over */
-}
-
-/* Style while moving the workspace */
-.workspace:active {
-  cursor: grabbing;
-}
-/* Common Button Style */
-.styled-button {
+/* Button Styling - Floating on Canvas */
+.canvas-button {
+  position: absolute;
+  top: 20px; /* Distance from top */
+  right: 20px; /* Distance from right */
   padding: 10px 20px;
   font-size: 16px;
   font-weight: bold;
-  color: #ffffff;
-  background-color: #4caf50; /* Soft green */
-  border: none;
+  color: #fff;
+  background-color: transparent; /* Transparent background */
+  border: 2px solid #4caf50; /* Subtle green border */
   border-radius: 8px; /* Rounded corners */
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth animations */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  transition: all 0.3s ease; /* Smooth hover effect */
 }
 
-/* Hover Effects */
-.styled-button:hover {
-  background-color: #45a049; /* Slightly darker green */
+/* Hover Effect */
+.canvas-button:hover {
+  background-color: rgba(76, 175, 80, 0.2); /* Subtle green highlight */
+  color: #4caf50;
   transform: translateY(-2px); /* Lift effect */
 }
 
 /* Active State */
-.styled-button:active {
-  background-color: #388e3c; /* Dark green */
+.canvas-button:active {
   transform: translateY(1px); /* Pressed effect */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Reduced shadow */
+  background-color: rgba(56, 142, 60, 0.3); /* Slightly darker */
 }
-

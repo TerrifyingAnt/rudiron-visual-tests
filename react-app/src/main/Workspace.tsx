@@ -247,8 +247,6 @@ const Workspace: React.FC = () => {
             console.log("Connection closed.");
         }
     };
-    
-    
 
     const generateCode = () => {
         let setupCode = "";
@@ -312,14 +310,92 @@ const Workspace: React.FC = () => {
     
         // Формируем итоговый код
         const finalCode = `setup() {\n${setupCode}\n}\n\nloop() {\n${loopCode}\n}`;
-        console.log("=== Итоговый код ===");
-        console.log(finalCode);
     
-        return finalCode;
+        console.log("Generated Arduino Code:\n", finalCode.trim());
+        let optimizedCode: string = extractSetupAndLoop(finalCode.trim());
+        console.log("Generated Arduino Code:\n", optimizedCode);
+        optimizedCode += "\n\rRUN";
+        sendCodeInParts(optimizedCode);
+        // Возвращаем результат
+        return optimizedCode;
     };
     
     
+    const copyCode = async (): Promise<void> => {
+        let setupCode = "";
+        let loopCode = "";
     
+        console.log("=== Начало генерации кода ===");
+        console.log("Блоки в рабочей области:", blocks);
+    
+        // Вспомогательная функция для рекурсивной генерации кода блока
+        const generateBlockCode = (blockId: string): string => {
+            console.log(`Генерация кода для блока с ID: ${blockId}`);
+            const block = blocks.find((b) => b.id === blockId);
+    
+            if (!block) {
+                console.warn(`Блок с ID ${blockId} не найден.`);
+                return ""; // Пропускаем, если блок не найден
+            }
+    
+            let blockCode = block.element.props.code || ""; // Получаем код блока
+            const children = block.element.props.childrenBlocks || []; // Получаем дочерние блоки
+    
+            console.log(`Код блока: ${blockCode}`);
+            console.log(`Дочерние блоки для блока с ID ${blockId}:`, children);
+    
+            // Удаляем вызовы setup() и loop(), если они случайно включены
+            blockCode = blockCode.replace(/setup\(\)/g, "").replace(/loop\(\)/g, "").trim();
+    
+            // Генерируем код для дочерних блоков рекурсивно
+            const childrenCode = children
+                .map((childId: string) => generateBlockCode(childId))
+                .join("\n");
+    
+            // Если есть дочерние блоки, оборачиваем их в фигурные скобки
+            if (children.length > 0) {
+                return `${blockCode} {\n${childrenCode}\n}`;
+            } else {
+                return blockCode;
+            }
+        };
+    
+        // Обрабатываем все блоки
+        blocks.forEach((block) => {
+            let blockCode = generateBlockCode(block.id);
+    
+            // Удаляем лишние вызовы setup() и loop() из корневого уровня
+            blockCode = blockCode.replace(/setup\(\)/g, "").replace(/loop\(\)/g, "").trim();
+    
+            // Проверяем, является ли блок инициализацией пина (например, pinMode)
+            if (block.element.props.code.startsWith("pinMode")) {
+                console.log(`Добавление блока в setup(): ${blockCode}`);
+                setupCode += blockCode + "\n";
+            } else {
+                console.log(`Добавление блока в loop(): ${blockCode}`);
+                loopCode += blockCode + "\n";
+            }
+        });
+    
+        // Убираем лишние пустые строки
+        setupCode = setupCode.trim();
+        loopCode = loopCode.trim();
+    
+        // Формируем итоговый код
+        const finalCode = `setup() {\n${setupCode}\n}\n\nloop() {\n${loopCode}\n}`;
+
+        console.log("Generated Arduino Code:\n", finalCode.trim());
+        const optimizedCode: string = extractSetupAndLoop(finalCode.trim());
+        console.log("Optimized Arduino Code:\n", optimizedCode);
+    
+        try {
+            await navigator.clipboard.writeText(optimizedCode); // Copy to clipboard
+            alert("Code copied to clipboard!");
+        } catch (error) {
+            console.error("Failed to copy code to clipboard:", error);
+            alert("Error copying code to clipboard.");
+        }
+    };
     
 
     const handleRightClick = (blockId: string, event: React.MouseEvent<HTMLDivElement>) => {
@@ -529,55 +605,49 @@ const Workspace: React.FC = () => {
                 }
             />
             <div
-                ref={workspaceRef} // Attach the ref to the workspace div
-                className={`workspace ${isWorkspaceHovered ? "drag-over" : ""}`}
-                onMouseDown={handleMouseDownCanvas}
-                onMouseMove={handleMouseMoveCanvas}
-                onMouseUp={handleMouseUpCanvas}
-                onMouseLeave={handleMouseUpCanvas}
-                onDragEnter={handleDragEnter}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                style={{
-                    backgroundPosition: `${offset.x}px ${offset.y}px`,
-                }}
-            >
-                {blocks.map((block) => (
-                    <div
-                        key={block.id}
-                        className="draggable"
-                        onContextMenu={(e) => handleRightClick(block.id, e)}
-                        style={{
-                            position: "absolute",
-                            left: block.position.x + offset.x,
-                            top: block.position.y + offset.y,
-                        }}
-                        data-code={block.element.props.code}
-                    >
-                        {React.cloneElement(block.element, { onCodeChange: updateBlockCode })}
-                    </div>
-                ))}
-            </div>
-            <div style={{ padding: "10px", textAlign: "center" }}>
-            <div style={{ padding: "10px", textAlign: "center" }}>
-                    <button
-                        id="generateButton"
-                        onClick={generateCode}
-                        className="styled-button"
-                    >
-                        Generate Code
-                    </button>
-                    <button
-                        id="copyButton"
-                        onClick={copyCode}
-                        className="styled-button"
-                        style={{ marginLeft: "10px" }}
-                    >
-                        Copy Code
-                    </button>
-                </div>
-            </div>
+  ref={workspaceRef} // Attach the ref to the workspace div
+  className={`workspace ${isWorkspaceHovered ? "drag-over" : ""}`}
+  onMouseDown={handleMouseDownCanvas}
+  onMouseMove={handleMouseMoveCanvas}
+  onMouseUp={handleMouseUpCanvas}
+  onMouseLeave={handleMouseUpCanvas}
+  onDragEnter={handleDragEnter}
+  onDragOver={handleDragOver}
+  onDragLeave={handleDragLeave}
+  onDrop={handleDrop}
+  style={{
+    backgroundPosition: `${offset.x}px ${offset.y}px`,
+  }}
+>
+  {/* Render blocks */}
+  {blocks.map((block) => (
+    <div
+      key={block.id}
+      className="draggable"
+      onContextMenu={(e) => handleRightClick(block.id, e)}
+      style={{
+        position: "absolute",
+        left: block.position.x + offset.x,
+        top: block.position.y + offset.y,
+      }}
+      data-code={block.element.props.code}
+    >
+      {React.cloneElement(block.element, { onCodeChange: updateBlockCode })}
+    </div>
+  ))}
+
+  {/* Floating Buttons */}
+  <button className="canvas-button" onClick={generateCode}>
+    Generate Code
+  </button>
+  <button
+    className="canvas-button"
+    style={{ top: '60px' }} /* Adjust second button position */
+    onClick={copyCode}
+  >
+    Copy Code
+  </button>
+</div>
         </div>
     );
 };
