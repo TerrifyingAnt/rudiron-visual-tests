@@ -117,6 +117,137 @@ const Workspace: React.FC = () => {
         return result;
     }
     
+    const sendCodeInParts = async (fullCode: string): Promise<void> => {
+        if (!("serial" in navigator)) {
+            alert("Web Serial API is not supported in this browser.");
+            return;
+        }
+    
+        // Helper function to introduce a delay
+        const delay = (ms: number): Promise<void> => new Promise(resolve => setTimeout(resolve, ms));
+    
+        let port: SerialPort | null = null;
+        let writer: WritableStreamDefaultWriter | null = null;
+        let reader: ReadableStreamDefaultReader | null = null;
+    
+        try {
+            // Step 1: Request access to a serial port
+            port = await navigator.serial.requestPort();
+            await port.open({ baudRate: 9600 });
+            const encoder = new TextEncoder();
+            writer = port.writable!.getWriter();
+            reader = port.readable?.getReader();
+    
+            const readResponse = async (): Promise<string | null> => {
+                if (reader) {
+                    try {
+                        const { value, done } = await reader.read();
+                        if (done || !value) return null;
+                        return new TextDecoder().decode(value);
+                    } catch (error) {
+                        console.error("Error reading response:", error);
+                        return null;
+                    }
+                }
+                return null;
+            };
+    
+            // Step 2: Split and parse the code
+            const lines = fullCode.split("\n").map(line => line.trim());
+            console.log("Parsed lines:", lines);
+    
+            // Extract variables
+            const variables = lines.filter(line => line.match(/^\s*int\s/)); // Collect variables
+    
+            // Extract setup block
+            const setupStartIndex = lines.findIndex(line => line.includes("setup"));
+            const setupEndIndex = lines.findIndex((line, idx) => idx > setupStartIndex && line.includes("}"));
+            const setup = setupStartIndex >= 0 ? lines.slice(setupStartIndex, setupEndIndex + 1).join(" ") : null;
+    
+            // Extract loop block
+            const loopStartIndex = lines.findIndex(line => line.includes("loop"));
+            const loopEndIndex = lines.findIndex((line, idx) => idx > loopStartIndex && line.includes("}"));
+            const loop = loopStartIndex >= 0 ? lines.slice(loopStartIndex, loopEndIndex + 1).join(" ") : null;
+    
+            // Step 3: Send STOP Command
+            console.log("Sending STOP");
+            await writer.write(encoder.encode("STOP\r\n"));
+            await delay(1500);
+    
+            // Step 4: Send variables one by one
+            for (const variable of variables) {
+                console.log("Sending variable:", variable);
+                await writer.write(encoder.encode(variable + "\r\n"));
+                const response = await readResponse();
+                if (response) console.log("Device response:", response);
+                await delay(500);
+            }
+    
+            // Step 5: Send setup block
+            if (setup) {
+                console.log("Sending setup:", setup);
+                await writer.write(encoder.encode("void " + setup + "\r\n"));
+                const setupResponse = await readResponse();
+                if (setupResponse) console.log("Device response:", setupResponse);
+                await delay(500);
+            } else {
+                console.warn("No setup block found!");
+            }
+    
+            // Step 6: Send loop block
+            if (loop) {
+                console.log("Sending loop:", loop);
+                await writer.write(encoder.encode("void " + loop + "\r\n"));
+                const loopResponse = await readResponse();
+                if (loopResponse) console.log("Device response:", loopResponse);
+                await delay(500);
+            } else {
+                console.warn("No loop block found!");
+            }
+    
+            // Step 7: Send RUN Command
+            console.log("Sending RUN");
+            await writer.write(encoder.encode("RUN\r\n"));
+            const runResponse = await readResponse();
+            if (runResponse) console.log("Device response:", runResponse);
+    
+        } catch (error) {
+            console.error("Error sending code:", error);
+            alert("An error occurred while sending the code.");
+        } finally {
+            // Step 8: Safely close connections
+            try {
+                if (writer) {
+                    writer.releaseLock();
+                    writer = null;
+                }
+            } catch (writerError) {
+                console.error("Error releasing writer lock:", writerError);
+            }
+    
+            try {
+                if (reader) {
+                    reader.cancel(); // Cancel any ongoing read operation
+                    reader.releaseLock();
+                    reader = null;
+                }
+            } catch (readerError) {
+                console.error("Error releasing reader lock:", readerError);
+            }
+    
+            try {
+                if (port) {
+                    await port.close();
+                    port = null;
+                }
+            } catch (closeError) {
+                console.error("Error closing the connection:", closeError);
+            }
+    
+            console.log("Connection closed.");
+        }
+    };
+    
     
 
     const generateCode = () => {
@@ -147,9 +278,10 @@ const Workspace: React.FC = () => {
             }
         });
         console.log("Generated Arduino Code:\n", currentCode.trim());
-        const optimizedCode: string = extractSetupAndLoop(currentCode.trim());
+        let optimizedCode: string = extractSetupAndLoop(currentCode.trim());
         console.log("Generated Arduino Code:\n", optimizedCode);
-
+        optimizedCode += "\n\rRUN";
+        sendCodeInParts(optimizedCode);
         // Возвращаем результат
         return optimizedCode;
     };
