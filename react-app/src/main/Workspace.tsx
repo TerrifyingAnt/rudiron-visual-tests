@@ -100,36 +100,77 @@ const Workspace: React.FC = () => {
 
 
     const generateCode = () => {
-        let currentCode = "";
-        console.log(blocks)
+        let setupCode = "";
+        let loopCode = "";
+    
+        console.log("=== Начало генерации кода ===");
+        console.log("Блоки в рабочей области:", blocks);
+    
+        // Вспомогательная функция для рекурсивной генерации кода блока
         const generateBlockCode = (blockId: string): string => {
+            console.log(`Генерация кода для блока с ID: ${blockId}`);
             const block = blocks.find((b) => b.id === blockId);
-            if (!block) return ""; // Если блок не найден, ничего не делаем.
-
-            const blockCode = block.element.props.code || ""; // Получаем код текущего блока.
-            const children = block.element.props.childrenBlocks || []; // Получаем дочерние блоки.
-
-            // Рекурсивно генерируем код для дочерних блоков.
-            const childrenCode = children.map((childId: string) => generateBlockCode(childId)).join("\n");
-
-            // Формируем блок кода с вложенными дочерними блоками.
+    
+            if (!block) {
+                console.warn(`Блок с ID ${blockId} не найден.`);
+                return ""; // Пропускаем, если блок не найден
+            }
+    
+            let blockCode = block.element.props.code || ""; // Получаем код блока
+            const children = block.element.props.childrenBlocks || []; // Получаем дочерние блоки
+    
+            console.log(`Код блока: ${blockCode}`);
+            console.log(`Дочерние блоки для блока с ID ${blockId}:`, children);
+    
+            // Удаляем вызовы setup() и loop(), если они случайно включены
+            blockCode = blockCode.replace(/setup\(\)/g, "").replace(/loop\(\)/g, "").trim();
+    
+            // Генерируем код для дочерних блоков рекурсивно
+            const childrenCode = children
+                .map((childId: string) => generateBlockCode(childId))
+                .join("\n");
+    
+            // Если есть дочерние блоки, оборачиваем их в фигурные скобки
             if (children.length > 0) {
                 return `${blockCode} {\n${childrenCode}\n}`;
             } else {
                 return blockCode;
             }
         };
-
+    
+        // Обрабатываем все блоки
         blocks.forEach((block) => {
-            // Если блок не имеет родительского элемента, начинаем с него.
-            if (!block.element.props.parentId) {
-                currentCode += generateBlockCode(block.id) + "\n"; // Начинаем с корневых блоков.
+            let blockCode = generateBlockCode(block.id);
+    
+            // Удаляем лишние вызовы setup() и loop() из корневого уровня
+            blockCode = blockCode.replace(/setup\(\)/g, "").replace(/loop\(\)/g, "").trim();
+    
+            // Проверяем, является ли блок инициализацией пина (например, pinMode)
+            if (block.element.props.code.startsWith("pinMode")) {
+                console.log(`Добавление блока в setup(): ${blockCode}`);
+                setupCode += blockCode + "\n";
+            } else {
+                console.log(`Добавление блока в loop(): ${blockCode}`);
+                loopCode += blockCode + "\n";
             }
         });
-
-        console.log("Generated Arduino Code:\n", currentCode.trim());
-        return currentCode.trim();
+    
+        // Убираем лишние пустые строки
+        setupCode = setupCode.trim();
+        loopCode = loopCode.trim();
+    
+        // Формируем итоговый код
+        const finalCode = `setup() {\n${setupCode}\n}\n\nloop() {\n${loopCode}\n}`;
+        console.log("=== Итоговый код ===");
+        console.log(finalCode);
+    
+        return finalCode;
     };
+    
+    
+    
+    
+
     const handleRightClick = (blockId: string, event: React.MouseEvent<HTMLDivElement>) => {
         event.preventDefault();
         setBlocks((prevBlocks) => prevBlocks.filter((block) => block.id !== blockId));
