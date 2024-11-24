@@ -7,6 +7,9 @@ import SerialInitBlock from "../components/Blocks/SerialPort/SerialPortInit";
 import PinModeBlock from "../components/Blocks/IO/PinModeBlock";
 import DigitalReadBlock from "../components/Blocks/IO/DigitalReadBlock";
 import DigitalWriteBlock from "../components/Blocks/IO/DigitalWriteBlock";
+import LoopBlock from "../components/Blocks/Func/LoopBlock"
+import { useBlockContext } from "../components/Blocks/Var/BlockContext"; // Импорт контекста блоков
+
 import "../App.css";
 
 const Workspace: React.FC = () => {
@@ -16,6 +19,8 @@ const Workspace: React.FC = () => {
     const [isWorkspaceHovered, setIsWorkspaceHovered] = useState(false);
     const startPoint = useRef({ x: 0, y: 0 });
     const workspaceRef = useRef<HTMLDivElement>(null); // Ref for the workspace element
+    const { blocksArray } = useBlockContext(); // Получаем массив блоков из контекста
+
 
     const handleMouseDownCanvas = (event: React.MouseEvent<HTMLDivElement>) => {
         if ((event.target as HTMLElement).classList.contains("workspace")) {
@@ -38,6 +43,8 @@ const Workspace: React.FC = () => {
         setIsPanning(false);
     };
 
+    const { addBlock } = useBlockContext(); // Получаем метод addBlock из контекста
+
     const addBlockToWorkspace = (block: JSX.Element, position: { x: number; y: number }) => {
         const id = `${Date.now()}`;
         setBlocks((prevBlocks) => [
@@ -49,12 +56,15 @@ const Workspace: React.FC = () => {
                     id,
                     position,
                     onMove: moveBlock,
-                    onCodeChange: (blockId: string, innerCode: string[]) => {
-                        updateBlockCode(blockId, innerCode.join("\n")); // Convert string[] to string
+                    onCodeChange: (blockId: string, newCode: string) => {
+                        updateBlockCode(blockId, newCode);
                     },
                 }),
             },
         ]);
+
+        // Добавляем блок в контекст
+        addBlock(id, block.props.type || "unknown", block.props.code || "");
     };
 
 
@@ -86,39 +96,38 @@ const Workspace: React.FC = () => {
         );
     };
 
+
     const generateCode = () => {
-        // Helper function to recursively generate code for a block and its children
-        // const generateBlockCode = (blockId: string): string => {
-        //     const block = blocks.find((b) => b.id === blockId);
-        //     if (!block) return "";
+        let currentCode = "";
     
-        //     const { element, position } = block;
-        //     const blockType = element.props.type;
-        //     const children = element.props.childrenBlocks || [];
-        //     const blockCode = element.props.code;
+        const generateBlockCode = (blockId: string): string => {
+            const block = blocks.find((b) => b.id === blockId);
+            if (!block) return ""; // Если блок не найден, ничего не делаем.
     
-        //     // Generate code for child blocks recursively
-        //     const childrenCode = children.map((childId: string) => generateBlockCode(childId)).join("\n");
+            const blockCode = block.element.props.code || ""; // Получаем код текущего блока.
+            const children = block.element.props.childrenBlocks || []; // Получаем дочерние блоки.
     
-        //     // Insert children code into the parent block's structure
-        //     if (blockType === "setup") {
-        //         return `void setup() {\n${childrenCode}\n}`;
-        //     }
+            // Рекурсивно генерируем код для дочерних блоков.
+            const childrenCode = children.map((childId: string) => generateBlockCode(childId)).join("\n");
     
-        //     return blockCode + (childrenCode ? `\n${childrenCode}` : "");
-        // };
-    
-        let setupCode = "";
-        let otherCode = "";
+            // Формируем блок кода с вложенными дочерними блоками.
+            if (children.length > 0) {
+                return `${blockCode} {\n${childrenCode}\n}`;
+            } else {
+                return blockCode;
+            }
+        };
     
         blocks.forEach((block) => {
-            console.log(block.element.props);
+            // Если блок не имеет родительского элемента, начинаем с него.
+            if (!block.element.props.parentId) {
+                currentCode += generateBlockCode(block.id) + "\n"; // Начинаем с корневых блоков.
+            }
         });
     
-        const finalCode = `${setupCode}\n${otherCode}`;
-        console.log("Generated Code:\n", finalCode);
+        console.log("Generated Arduino Code:\n", currentCode.trim());
+        return currentCode.trim();
     };
-    
     
 
 
@@ -163,7 +172,24 @@ const Workspace: React.FC = () => {
                     key={Date.now()}
                     id={Date.now().toString()}
                     position={{ x: 0, y: 0 }}
-                    code="void setup() { // setup code }"
+                    code="setup()"
+                    onNest={nestBlock}
+                    onUnnest={unnestBlock}
+                    onMove={moveBlock}
+                    childrenBlocks={[]}
+            
+                />
+            ),
+        },
+        {
+            id: "loop",
+            label: "Основная функция",
+            createBlock: () => (
+                <LoopBlock
+                    key={Date.now()}
+                    id={Date.now().toString()}
+                    position={{ x: 0, y: 0 }}
+                    code="loop()"
                     onNest={nestBlock}
                     onUnnest={unnestBlock}
                     onMove={moveBlock}
@@ -238,46 +264,45 @@ const Workspace: React.FC = () => {
     };
 
     const nestBlock = (parentId: string, childId: string) => {
+        console.log("BBBB")
         setBlocks((prevBlocks) =>
             prevBlocks.map((block) => {
                 if (block.id === parentId) {
-                    const childrenBlocks = block.element.props.childrenBlocks || [];
+                    console.log("AAAAAAA")
+                    const currentChildren = block.element.props.childrenBlocks || [];
+                    const uniqueChildren = Array.from(
+                        new Set(currentChildren.concat(childId))
+                    ); // Используем Array.from и concat
                     return {
                         ...block,
                         element: React.cloneElement(block.element, {
-                            childrenBlocks: [...childrenBlocks, childId],
+                            childrenBlocks: uniqueChildren,
                         }),
                     };
-                }
-                if (block.id === childId) {
-                    return { ...block, parentId };
                 }
                 return block;
             })
         );
     };
-
+    
+    
     const unnestBlock = (parentId: string, childId: string) => {
-        setBlocks((prevBlocks) =>
-            prevBlocks.map((block) => {
-                if (block.id === parentId) {
-                    const childrenBlocks = block.element.props.childrenBlocks.filter(
-                        (id: string) => id !== childId
-                    );
-                    return {
-                        ...block,
-                        element: React.cloneElement(block.element, {
-                            childrenBlocks,
-                        }),
-                    };
-                }
-                if (block.id === childId) {
-                    return { ...block, parentId: undefined };
-                }
-                return block;
-            })
-        );
-    };
+    setBlocks((prevBlocks) =>
+        prevBlocks.map((block) => {
+            if (block.id === parentId) {
+                const currentChildren = block.element.props.childrenBlocks || [];
+                return {
+                    ...block,
+                    element: React.cloneElement(block.element, {
+                        childrenBlocks: currentChildren.filter((id: string) => id !== childId),
+                    }),
+                };
+            }
+            return block;
+        })
+    );
+};
+    
 
     return (
         <div className="app-container" style={{ display: "flex", height: "100vh" }}>

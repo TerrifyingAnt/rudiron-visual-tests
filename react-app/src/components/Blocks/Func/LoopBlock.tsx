@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useBlockContext } from "../Var/BlockContext"; // Подключение контекста
 import Block from "../BlockTemplate";
-import "./SetupBlock.css";
+import "./LoopBlock.css";
 
-interface SetupBlockProps {
+interface LoopBlockProps {
     id: string;
     position: { x: number; y: number };
     onMove: (id: string, position: { x: number; y: number }) => void;
@@ -13,7 +13,7 @@ interface SetupBlockProps {
     childrenBlocks: string[];
 }
 
-const SetupBlock: React.FC<SetupBlockProps> = ({
+const LoopBlock: React.FC<LoopBlockProps> = ({
     id,
     position,
     onMove,
@@ -65,8 +65,8 @@ const SetupBlock: React.FC<SetupBlockProps> = ({
     };
 
     return (
-        <Block id={id} type="setup" position={position} code={code} onMove={onMove}>
-            <div className="block-header">Инициализация</div>
+        <Block id={id} type="loop" position={position} code={code} onMove={onMove}>
+            <div className="block-header">Основная функция</div>
             <div
                 className="block-body"
                 onDragEnter={handleDragEnter}
@@ -88,4 +88,4 @@ const SetupBlock: React.FC<SetupBlockProps> = ({
     );
 };
 
-export default SetupBlock;
+export default LoopBlock;

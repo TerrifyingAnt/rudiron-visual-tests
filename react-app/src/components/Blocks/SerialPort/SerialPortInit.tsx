@@ -30,7 +30,7 @@ const SerialInitBlock: React.FC<SerialInitBlockProps> = ({ id, position, onMove,
     const handleBaudRateChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         const rate = parseInt(event.target.value, 10);
         setBaudRate(rate);
-        const newCode = `Serial.begin(${rate});`;
+        const newCode = `Serial.begin(${baudRate});`;
         setCode(newCode);
     
         if (typeof onCodeChange === "function") {

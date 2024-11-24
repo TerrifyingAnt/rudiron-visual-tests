@@ -53,7 +53,31 @@
 
 .menu-item:hover {
     background: #383838; /* Фон на hover */
-    border-left-color: #ffa726; /* Оранжевая линия при наведении */
+}
+
+/* Категория: Условия */
+.menu-item-Условия {
+    border-left-color: #ffa726; /* Orange */
+}
+
+/* Категория: Основные функции */
+.menu-item-Основные-функции {
+    border-left-color: #42a5f5; /* Blue */
+}
+
+/* Категория: Переменные */
+.menu-item-Переменные {
+    border-left-color: #66bb6a; /* Green */
+}
+
+/* Категория: Чтение/Запись */
+.menu-item-Чтение-Запись {
+    border-left-color: #ab47bc; /* Purple */
+}
+
+/* Категория: Монитор порта */
+.menu-item-Монитор-порта {
+    border-left-color: #ef5350; /* Red */
 }
 
 /* Стиль текста блока */
@@ -95,4 +119,3 @@
     background: #444444; /* Серый разделитель */
     margin: 10px 0;
 }
-

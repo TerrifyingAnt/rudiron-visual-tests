@@ -11,21 +11,26 @@ const Menu: React.FC<MenuProps> = ({ blocks, onAddBlockToWorkspace }) => {
     const [collapsedCategories, setCollapsedCategories] = useState<{
         [key: string]: boolean;
     }>({
-        Условия: false,
+        "Условия": false,
         "Основные функции": false,
-        Переменные: false,
+        "Переменные": false,
+        "Чтение/Запись": false,
+        "Монитор порта": false
     });
 
     const [searchQuery, setSearchQuery] = useState(""); // Состояние для строки поиска
 
     // Типизация категорий
-    const categories: Record<"Условия" | "Основные функции" | "Переменные" | "Чтение/Запись" | "Монитор порта", string[]> = {
-        "Условия": [],
-        "Основные функции": ["setup", ], // Добавлен "digital-read"
-        "Переменные": ["variable", "variable-selector"],
-        "Чтение/Запись": ["digital-read", "digital-write", "pinmode"],
-        "Монитор порта": ["serial-init"]
-    };
+    const categories: Record<
+    "Условия" | "Основные функции" | "Переменные" | "Чтение/Запись" | "Монитор порта",
+    { blocks: string[]; color: string }
+> = {
+    "Условия": { blocks: [], color: "#ffa726" }, // Orange
+    "Основные функции": { blocks: ["setup", "loop"], color: "#7e57c2" }, // Blue
+    "Переменные": { blocks: ["variable", "variable-selector"], color: "#66bb6a" }, // Green
+    "Чтение/Запись": { blocks: ["digital-read", "digital-write", "pinmode"], color: "#d32f2f" }, // Purple
+    "Монитор порта": { blocks: ["serial-init"], color: "#D1C03A" }, // Red
+};
 
     // Функция для переключения состояния свёрнутой категории
     const toggleCategory = (category: keyof typeof categories) => {
@@ -43,22 +48,22 @@ const Menu: React.FC<MenuProps> = ({ blocks, onAddBlockToWorkspace }) => {
     // Рендеринг блоков по категории
     const renderBlocksByCategory = (category: keyof typeof categories) =>
         filteredBlocks
-            .filter((block) => categories[category].includes(block.id))
+            .filter((block) => categories[category].blocks.includes(block.id))
             .map((block) => (
                 <div
                     key={block.id}
-                    className={`menu-item menu-item-${category}`} // Добавлен класс для категории
+                    className="menu-item"
+                    style={{ borderLeftColor: categories[category].color }} // Dynamic left border color
                     onClick={() => onAddBlockToWorkspace(block.createBlock())}
                 >
-                    <span className="menu-item-label">
-                        <span>{block.label}</span>
-                    </span>
+                    <span className="menu-item-label">{block.label}</span>
                     <span className="menu-item-info">
                         <span>2</span>
                         <i>ℹ️</i>
                     </span>
                 </div>
             ));
+    
     
 
     return (

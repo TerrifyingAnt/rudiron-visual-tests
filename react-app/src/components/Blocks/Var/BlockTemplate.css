@@ -1,0 +1,46 @@
+/* Основные стили для блоков */
+.draggable {
+    background-color: #007bff; /* Яркий цвет для выделения */
+    color: #fff; /* Контрастный текст */
+    padding: 16px; /* Увеличенный внутренний отступ */
+    border-radius: 8px; /* Скругление углов */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Лёгкая тень для объёма */
+    transition: box-shadow 0.2s ease, transform 0.2s ease; /* Гладкий переход эффектов */
+    cursor: grab; /* Стандартный указатель для перетаскивания */
+    user-select: none; /* Отключить выделение текста */
+}
+
+/* Стиль для активного перетаскивания */
+.draggable:active, .draggable.dragging {
+    cursor: grabbing; /* Визуальная обратная связь для пользователя */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Увеличенная тень при захвате */
+    transform: scale(1.05); /* Лёгкое увеличение размера для акцента */
+}
+
+/* Тело блока для вложенности */
+.block-body {
+    position: relative;
+    padding: 12px;
+    border: 2px dashed #cccccc; /* Визуальный индикатор допустимой области для вложения */
+    border-radius: 8px;
+    min-height: 100px; /* Минимальная высота для более удобного вложения */
+    background-color: #f9f9f9; /* Нейтральный фон */
+    overflow: auto; /* Прокрутка, если содержимое превышает размеры */
+}
+
+/* Когда блок находится внутри другого */
+.draggable .draggable {
+    position: relative !important; /* Сбрасываем позиционирование для вложенных элементов */
+    left: 0 !important;
+    top: 0 !important;
+}
+
+/* Скрытие текста на курсоре во время перетаскивания */
+body.dragging {
+    cursor: grabbing; /* Единый стиль для всей страницы */
+}
+
+.draggable[draggable="true"]::after {
+    content: ''; /* Убираем текстовую метку */
+    display: none;
+}
