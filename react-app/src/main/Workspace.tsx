@@ -4,6 +4,9 @@ import VariableBlock from "../components/Blocks/Var/VariableBlock";
 import VariableSelectorBlock from "../components/Blocks/Var/VariableSelectorBlock";
 import SetupBlock from "../components/Blocks/Func/SetupBlock";
 import SerialInitBlock from "../components/Blocks/SerialPort/SerialPortInit";
+import PinModeBlock from "../components/Blocks/IO/PinModeBlock";
+import DigitalReadBlock from "../components/Blocks/IO/DigitalReadBlock";
+import DigitalWriteBlock from "../components/Blocks/IO/DigitalWriteBlock";
 import "../App.css";
 
 const Workspace: React.FC = () => {
@@ -109,15 +112,7 @@ const Workspace: React.FC = () => {
         let otherCode = "";
     
         blocks.forEach((block) => {
-            // Only generate top-level blocks (blocks without a parent)
-            // if (!block.parentId) {
-            //     if (block.element.props.type === "setup") {
-            //         setupCode += generateBlockCode(block.id) + "\n";
-            //     } else {
-            //         otherCode += generateBlockCode(block.id) + "\n";
-            //     }
-            // }
-            console.log(block);
+            console.log(block.element.props);
         });
     
         const finalCode = `${setupCode}\n${otherCode}`;
@@ -191,6 +186,47 @@ const Workspace: React.FC = () => {
                 />
             ),
         },
+        {
+            id: "pinmode",
+            label: "Настройка Пина",
+            createBlock: () => (
+                <PinModeBlock
+                    key={Date.now()}
+                    id={Date.now().toString()}
+                    position={{x: 0, y: 0}}
+                    onMove={moveBlock}
+                    code="pinMode(5, OUTPUT)"
+                    onCodeChange={updateBlockCode}/>
+            )
+        },
+        {
+            id: "digital-read",
+            label: "Чтение цифрового значения",
+            createBlock: () => (
+                <DigitalReadBlock
+                    key={Date.now()}
+                    id={Date.now().toString()}
+                    position={{ x: 0, y: 0 }}
+                    onMove={moveBlock}
+                    code="digitalRead(D5);"
+                    onCodeChange={updateBlockCode}
+                />
+            ),
+        },
+        {
+            id: "digital-write",
+            label: "Запись цифрового значения",
+            createBlock: () => (
+                <DigitalWriteBlock
+                    key={Date.now()}
+                    id={Date.now().toString()}
+                    position={{ x: 0, y: 0 }}
+                    onMove={moveBlock}
+                    code="digitalWrite(D5, 1);"
+                    onCodeChange={updateBlockCode}
+                />
+            ),
+        }
     ];
 
     const moveBlock = (id: string, position: { x: number; y: number }) => {
