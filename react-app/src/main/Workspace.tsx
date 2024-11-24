@@ -99,17 +99,17 @@ const Workspace: React.FC = () => {
 
     const generateCode = () => {
         let currentCode = "";
-    
+
         const generateBlockCode = (blockId: string): string => {
             const block = blocks.find((b) => b.id === blockId);
             if (!block) return ""; // Если блок не найден, ничего не делаем.
-    
+
             const blockCode = block.element.props.code || ""; // Получаем код текущего блока.
             const children = block.element.props.childrenBlocks || []; // Получаем дочерние блоки.
-    
+
             // Рекурсивно генерируем код для дочерних блоков.
             const childrenCode = children.map((childId: string) => generateBlockCode(childId)).join("\n");
-    
+
             // Формируем блок кода с вложенными дочерними блоками.
             if (children.length > 0) {
                 return `${blockCode} {\n${childrenCode}\n}`;
@@ -117,18 +117,22 @@ const Workspace: React.FC = () => {
                 return blockCode;
             }
         };
-    
+
         blocks.forEach((block) => {
             // Если блок не имеет родительского элемента, начинаем с него.
             if (!block.element.props.parentId) {
                 currentCode += generateBlockCode(block.id) + "\n"; // Начинаем с корневых блоков.
             }
         });
-    
+
         console.log("Generated Arduino Code:\n", currentCode.trim());
         return currentCode.trim();
     };
-    
+    const handleRightClick = (blockId: string, event: React.MouseEvent<HTMLDivElement>) => {
+        event.preventDefault();
+        setBlocks((prevBlocks) => prevBlocks.filter((block) => block.id !== blockId));
+    };
+
 
 
     const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
@@ -145,7 +149,7 @@ const Workspace: React.FC = () => {
                     id={Date.now().toString()}
                     position={{ x: 0, y: 0 }}
                     onMove={moveBlock}
-                    code={"int " + Date.now().toString() + " = 0;"} 
+                    code={"int " + Date.now().toString() + " = 0;"}
                     onCodeChange={updateBlockCode} // Ensure this is passed
                 />
             ),
@@ -177,7 +181,7 @@ const Workspace: React.FC = () => {
                     onUnnest={unnestBlock}
                     onMove={moveBlock}
                     childrenBlocks={[]}
-            
+
                 />
             ),
         },
@@ -194,7 +198,7 @@ const Workspace: React.FC = () => {
                     onUnnest={unnestBlock}
                     onMove={moveBlock}
                     childrenBlocks={[]}
-            
+
                 />
             ),
         },
@@ -219,10 +223,10 @@ const Workspace: React.FC = () => {
                 <PinModeBlock
                     key={Date.now()}
                     id={Date.now().toString()}
-                    position={{x: 0, y: 0}}
+                    position={{ x: 0, y: 0 }}
                     onMove={moveBlock}
                     code="pinMode(5, OUTPUT)"
-                    onCodeChange={updateBlockCode}/>
+                    onCodeChange={updateBlockCode} />
             )
         },
         {
@@ -284,25 +288,25 @@ const Workspace: React.FC = () => {
             })
         );
     };
-    
-    
+
+
     const unnestBlock = (parentId: string, childId: string) => {
-    setBlocks((prevBlocks) =>
-        prevBlocks.map((block) => {
-            if (block.id === parentId) {
-                const currentChildren = block.element.props.childrenBlocks || [];
-                return {
-                    ...block,
-                    element: React.cloneElement(block.element, {
-                        childrenBlocks: currentChildren.filter((id: string) => id !== childId),
-                    }),
-                };
-            }
-            return block;
-        })
-    );
-};
-    
+        setBlocks((prevBlocks) =>
+            prevBlocks.map((block) => {
+                if (block.id === parentId) {
+                    const currentChildren = block.element.props.childrenBlocks || [];
+                    return {
+                        ...block,
+                        element: React.cloneElement(block.element, {
+                            childrenBlocks: currentChildren.filter((id: string) => id !== childId),
+                        }),
+                    };
+                }
+                return block;
+            })
+        );
+    };
+
 
     return (
         <div className="app-container" style={{ display: "flex", height: "100vh" }}>
@@ -335,14 +339,15 @@ const Workspace: React.FC = () => {
                     <div
                         key={block.id}
                         className="draggable"
+                        onContextMenu={(e) => handleRightClick(block.id, e)}
                         style={{
                             position: "absolute",
                             left: block.position.x + offset.x,
                             top: block.position.y + offset.y,
                         }}
-                        data-code={block.element.props.code} // Attach code as a data attribute
+                        data-code={block.element.props.code}
                     >
-                        {React.cloneElement(block.element, { onCodeChange: updateBlockCode })} {/* Ensure this */}
+                        {React.cloneElement(block.element, { onCodeChange: updateBlockCode })}
                     </div>
                 ))}
             </div>

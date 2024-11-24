@@ -68,18 +68,31 @@ const Block: React.FC<BlockProps> = ({
 
     const nestBlock = (container: HTMLElement) => {
         setNested(true);
-
-        // Убираем из предыдущей позиции
-        blockRef.current!.style.position = "relative";
-        blockRef.current!.style.left = "0";
-        blockRef.current!.style.top = "0";
-        blockRef.current!.style.width = "80%"; // Уменьшаем размер
-        blockRef.current!.style.margin = "4px auto"; // Центрируем блок
-
-        // Добавляем в новый контейнер
-        container.appendChild(blockRef.current!);
-
-        adjustBlockSize(container);
+    
+        // Preserve the original design of the nested block
+        const nestedBlock = blockRef.current!;
+        nestedBlock.style.position = "relative";
+        nestedBlock.style.left = "0";
+        nestedBlock.style.top = "0";
+        nestedBlock.style.margin = "4px auto"; // Center nested block
+        nestedBlock.style.width = "auto"; // Maintain original width
+    
+        // Adjust parent container to accommodate the nested block
+        container.appendChild(nestedBlock);
+    
+        // Ensure the parent block resizes
+        adjustParentSize(container);
+    };
+    
+    const adjustParentSize = (container: HTMLElement) => {
+        // Get the parent block element
+        const parentBlock = container.closest(".draggable") as HTMLElement;
+    
+        if (parentBlock) {
+            // Calculate the new height of the parent block based on its content
+            const contentHeight = container.scrollHeight + 20; // Add padding for spacing
+            parentBlock.style.height = `${contentHeight}px`;
+        }
     };
 
     const adjustBlockSize = (container: HTMLElement) => {
