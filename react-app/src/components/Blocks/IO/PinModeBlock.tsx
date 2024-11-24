@@ -23,7 +23,7 @@ const PinModeBlock: React.FC<PinModeBlockProps> = ({
     const [currentCode, setCode] = useState(`pinMode(${selectedPin}, ${selectedMode})`);
 
     // Arduino pin options
-    const availablePins = ["D0", "D1", "D2", "D3", "D4", "D5", "D6", "D7", "A0", "A1", "A2", "A3", "A4", "A5"];
+    const availablePins = ["5", "7", "35", "31", "32"];
     const pinModes = ["INPUT", "OUTPUT", "INPUT_PULLUP", "INPUT_PULLDOWN"];
 
     // Generate the Arduino pinMode code

@@ -21,7 +21,7 @@ const DigitalReadBlock: React.FC<DigitalReadBlockProps> = ({
     const [isDraggingEnabled, setIsDraggingEnabled] = useState(true);
 
     // Доступные пины для Arduino
-    const availablePins = ["D0", "D1", "D2", "D3", "D4", "D5", "D6", "D7", "A0", "A1", "A2", "A3", "A4", "A5"];
+    const availablePins = ["5", "7", "35", "31", "32"];
 
     // Генерация кода `digitalRead(pin)`
     const generateCode = (pin: string | null): string => {

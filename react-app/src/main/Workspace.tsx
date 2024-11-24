@@ -8,7 +8,9 @@ import PinModeBlock from "../components/Blocks/IO/PinModeBlock";
 import DigitalReadBlock from "../components/Blocks/IO/DigitalReadBlock";
 import DigitalWriteBlock from "../components/Blocks/IO/DigitalWriteBlock";
 import LoopBlock from "../components/Blocks/Func/LoopBlock"
+import DelayBlock from "../components/Blocks/Condition/DelayBlock";
 import { useBlockContext } from "../components/Blocks/Var/BlockContext"; // Импорт контекста блоков
+
 
 import "../App.css";
 
@@ -140,6 +142,20 @@ const Workspace: React.FC = () => {
         setIsWorkspaceHovered(false);
     };
     const blockDefinitions = [
+        {
+            id: "delay",
+            label: "Задержка",
+            createBlock: () => (
+                <DelayBlock
+                    key={Date.now()}
+                    id={Date.now().toString()}
+                    position={{ x: 0, y: 0 }}
+                    onMove={moveBlock}
+                    code={"delay(100);"}
+                    onCodeChange={updateBlockCode} // Ensure this is passed
+                />
+            ),
+        },
         {
             id: "variable",
             label: "Объявление переменной",

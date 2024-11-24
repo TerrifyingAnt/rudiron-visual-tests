@@ -25,7 +25,7 @@ const Menu: React.FC<MenuProps> = ({ blocks, onAddBlockToWorkspace }) => {
     "Условия" | "Основные функции" | "Переменные" | "Чтение/Запись" | "Монитор порта",
     { blocks: string[]; color: string }
 > = {
-    "Условия": { blocks: [], color: "#ffa726" }, // Orange
+    "Условия": { blocks: ["delay"], color: "#D13A9A" }, // pink
     "Основные функции": { blocks: ["setup", "loop"], color: "#7e57c2" }, // Blue
     "Переменные": { blocks: ["variable", "variable-selector"], color: "#66bb6a" }, // Green
     "Чтение/Запись": { blocks: ["digital-read", "digital-write", "pinmode"], color: "#d32f2f" }, // Purple
@@ -89,11 +89,7 @@ const Menu: React.FC<MenuProps> = ({ blocks, onAddBlockToWorkspace }) => {
                 <span>{collapsedCategories["Условия"] ? "▲" : "▼"}</span>
             </div>
             {!collapsedCategories["Условия"] && (
-                <div>
-                    <p style={{ color: "#bbb", fontSize: "12px", padding: "8px 16px" }}>
-                        В этой категории пока нет блоков.
-                    </p>
-                </div>
+                <div>{renderBlocksByCategory("Условия")}</div>
             )}
 
             {/* Категория: Основные функции */}
