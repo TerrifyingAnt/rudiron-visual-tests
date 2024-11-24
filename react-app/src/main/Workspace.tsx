@@ -96,6 +96,26 @@ const Workspace: React.FC = () => {
         );
     };
 
+    function extractSetupAndLoop(input: string): string {
+        // Regular expressions to match setup and loop blocks
+        const setupRegex = /setup\s*\(\s*\)\s*{([\s\S]*?)}/;
+        const loopRegex = /loop\s*\(\s*\)\s*{([\s\S]*?)}/;
+    
+        // Find matches for setup and loop
+        const setupMatch = input.match(setupRegex);
+        const loopMatch = input.match(loopRegex);
+    
+        // Extract the content inside the curly braces if matches are found
+        const setupContent = setupMatch ? setupMatch[0] : '';
+        const loopContent = loopMatch ? loopMatch[0] : '';
+    
+        // Combine setup and loop contents into the desired result
+        const result = `${setupContent}\n\n${loopContent}`;
+    
+        return result;
+    }
+    
+    
 
     const generateCode = () => {
         let currentCode = "";
@@ -124,10 +144,16 @@ const Workspace: React.FC = () => {
                 currentCode += generateBlockCode(block.id) + "\n"; // Начинаем с корневых блоков.
             }
         });
-
         console.log("Generated Arduino Code:\n", currentCode.trim());
-        return currentCode.trim();
+        const optimizedCode: string = extractSetupAndLoop(currentCode.trim());
+        console.log("Generated Arduino Code:\n", optimizedCode);
+
+        // Возвращаем результат
+        return optimizedCode;
     };
+
+
+    
     const handleRightClick = (blockId: string, event: React.MouseEvent<HTMLDivElement>) => {
         event.preventDefault();
         setBlocks((prevBlocks) => prevBlocks.filter((block) => block.id !== blockId));
@@ -225,7 +251,7 @@ const Workspace: React.FC = () => {
                     id={Date.now().toString()}
                     position={{ x: 0, y: 0 }}
                     onMove={moveBlock}
-                    code="pinMode(5, OUTPUT)"
+                    code="pinMode(5, OUTPUT);"
                     onCodeChange={updateBlockCode} />
             )
         },
