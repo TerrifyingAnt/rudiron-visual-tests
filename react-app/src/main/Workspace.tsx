@@ -101,7 +101,7 @@ const Workspace: React.FC = () => {
 
     const generateCode = () => {
         let currentCode = "";
-
+        console.log(blocks)
         const generateBlockCode = (blockId: string): string => {
             const block = blocks.find((b) => b.id === blockId);
             if (!block) return ""; // Если блок не найден, ничего не делаем.
@@ -241,7 +241,7 @@ const Workspace: React.FC = () => {
                     id={Date.now().toString()}
                     position={{ x: 0, y: 0 }}
                     onMove={moveBlock}
-                    code="pinMode(5, OUTPUT)"
+                    code="pinMode(5, OUTPUT);"
                     onCodeChange={updateBlockCode} />
             )
         },
