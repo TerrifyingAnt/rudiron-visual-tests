@@ -286,6 +286,47 @@ const Workspace: React.FC = () => {
         return optimizedCode;
     };
 
+    const copyCode = async (): Promise<void> => {
+        let currentCode = "";
+    
+        const generateBlockCode = (blockId: string): string => {
+            const block = blocks.find((b) => b.id === blockId);
+            if (!block) return ""; // Если блок не найден, ничего не делаем.
+    
+            const blockCode = block.element.props.code || ""; // Получаем код текущего блока.
+            const children: string[] = block.element.props.childrenBlocks || []; // Получаем дочерние блоки.
+    
+            // Рекурсивно генерируем код для дочерних блоков.
+            const childrenCode = children.map((childId) => generateBlockCode(childId)).join("\n");
+    
+            // Формируем блок кода с вложенными дочерними блоками.
+            if (children.length > 0) {
+                return `${blockCode} {\n${childrenCode}\n}`;
+            } else {
+                return blockCode;
+            }
+        };
+    
+        blocks.forEach((block) => {
+            // Если блок не имеет родительского элемента, начинаем с него.
+            if (!block.element.props.parentId) {
+                currentCode += generateBlockCode(block.id) + "\n"; // Начинаем с корневых блоков.
+            }
+        });
+    
+        console.log("Generated Arduino Code:\n", currentCode.trim());
+        const optimizedCode: string = extractSetupAndLoop(currentCode.trim());
+        console.log("Optimized Arduino Code:\n", optimizedCode);
+    
+        try {
+            await navigator.clipboard.writeText(optimizedCode); // Copy to clipboard
+            alert("Code copied to clipboard!");
+        } catch (error) {
+            console.error("Failed to copy code to clipboard:", error);
+            alert("Error copying code to clipboard.");
+        }
+    };
+    
 
     
     const handleRightClick = (blockId: string, event: React.MouseEvent<HTMLDivElement>) => {
@@ -526,21 +567,23 @@ const Workspace: React.FC = () => {
                 ))}
             </div>
             <div style={{ padding: "10px", textAlign: "center" }}>
-                <button
-                    id="generateButton"
-                    onClick={generateCode}
-                    style={{
-                        padding: "10px 20px",
-                        fontSize: "16px",
-                        backgroundColor: "#4caf50",
-                        color: "#fff",
-                        border: "none",
-                        borderRadius: "5px",
-                        cursor: "pointer",
-                    }}
-                >
-                    Generate Code
-                </button>
+            <div style={{ padding: "10px", textAlign: "center" }}>
+                    <button
+                        id="generateButton"
+                        onClick={generateCode}
+                        className="styled-button"
+                    >
+                        Generate Code
+                    </button>
+                    <button
+                        id="copyButton"
+                        onClick={copyCode}
+                        className="styled-button"
+                        style={{ marginLeft: "10px" }}
+                    >
+                        Copy Code
+                    </button>
+                </div>
             </div>
         </div>
     );

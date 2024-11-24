@@ -19,3 +19,30 @@
 .workspace:active {
   cursor: grabbing;
 }
+/* Common Button Style */
+.styled-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #ffffff;
+  background-color: #4caf50; /* Soft green */
+  border: none;
+  border-radius: 8px; /* Rounded corners */
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth animations */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+/* Hover Effects */
+.styled-button:hover {
+  background-color: #45a049; /* Slightly darker green */
+  transform: translateY(-2px); /* Lift effect */
+}
+
+/* Active State */
+.styled-button:active {
+  background-color: #388e3c; /* Dark green */
+  transform: translateY(1px); /* Pressed effect */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Reduced shadow */
+}
+
