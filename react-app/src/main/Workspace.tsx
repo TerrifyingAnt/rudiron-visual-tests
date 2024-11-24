@@ -9,6 +9,8 @@ import DigitalReadBlock from "../components/Blocks/IO/DigitalReadBlock";
 import DigitalWriteBlock from "../components/Blocks/IO/DigitalWriteBlock";
 import LoopBlock from "../components/Blocks/Func/LoopBlock"
 import DelayBlock from "../components/Blocks/Condition/DelayBlock";
+import ConditionBlock from "../components/Blocks/Condition/ConditionBlock"
+import ForBlock from "../components/Blocks/Loop/ForBlock"
 import { useBlockContext } from "../components/Blocks/Var/BlockContext"; // Импорт контекста блоков
 
 
@@ -471,7 +473,7 @@ const Workspace: React.FC = () => {
         },
         {
             id: "loop",
-            label: "Основная функция",
+            label: "Основной цикл",
             createBlock: () => (
                 <LoopBlock
                     key={Date.now()}
@@ -540,6 +542,64 @@ const Workspace: React.FC = () => {
                     onCodeChange={updateBlockCode}
                 />
             ),
+        },
+        {
+            id: "analog-read",
+            label: "Чтение аналогового значения",
+            createBlock: () => (
+                <DigitalReadBlock
+                    key={Date.now()}
+                    id={Date.now().toString()}
+                    position={{ x: 0, y: 0 }}
+                    onMove={moveBlock}
+                    code="analogRead(D5);"
+                    onCodeChange={updateBlockCode}
+                />
+            ),
+        },
+        {
+            id: "analog-write",
+            label: "Запись аналогового значения",
+            createBlock: () => (
+                <DigitalWriteBlock
+                    key={Date.now()}
+                    id={Date.now().toString()}
+                    position={{ x: 0, y: 0 }}
+                    onMove={moveBlock}
+                    code="analogWrite(D5, 1);"
+                    onCodeChange={updateBlockCode}
+                />
+            ),
+        },
+        {
+            id: "if",
+            label: "Условие",
+            createBlock: () => (
+                <ConditionBlock
+                    key={Date.now()}
+                    id={Date.now().toString()}
+                    position={{ x: 0, y: 0 }}
+                    onMove={moveBlock}
+                    code="if "
+                    onCodeChange={updateBlockCode}
+                />
+            ),
+        },
+        {
+            id: "for",
+            label: "Повтор N раз",
+            createBlock: () => (
+                <ForBlock
+                    key={Date.now()}
+                    id={Date.now().toString()}
+                    position={{ x: 0, y: 0 }}
+                    onMove={moveBlock}
+                    code="for"
+                    onNest={nestBlock}
+                    onUnnest={unnestBlock}
+                    childrenBlocks={[]}
+                />
+            ),
         }
     ];
 
@@ -552,11 +612,9 @@ const Workspace: React.FC = () => {
     };
 
     const nestBlock = (parentId: string, childId: string) => {
-        console.log("BBBB")
         setBlocks((prevBlocks) =>
             prevBlocks.map((block) => {
                 if (block.id === parentId) {
-                    console.log("AAAAAAA")
                     const currentChildren = block.element.props.childrenBlocks || [];
                     const uniqueChildren = Array.from(
                         new Set(currentChildren.concat(childId))
