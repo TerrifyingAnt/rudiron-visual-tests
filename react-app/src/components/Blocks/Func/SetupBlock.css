@@ -1,0 +1,88 @@
+/* Global font-family for the block */
+.block-header {
+    font-family: var(--font-family-titles);
+    background-color: #7e57c2; /* Purple header */
+    color: #ffffff; /* White text */
+    padding: 10px 15px;
+    border-radius: 5px 5px 0 0; /* Rounded corners for the top */
+    text-align: center;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+/* Main body styles */
+.block-body {
+    border: 2px dashed #666666; /* Dashed border */
+    border-radius: 0 0 5px 5px; /* Bottom rounded corners */
+    padding: 20px;
+    background-color: #333333; /* Dark grey background */
+    min-height: 100px; /* Maintain minimum size */
+    transition: border 0.2s ease, background-color 0.2s ease, min-height 0.3s ease; /* Smooth resizing */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* Center placeholder text */
+    color: #cccccc; /* Light grey placeholder text */
+}
+
+/* Collapsed state for the parent block */
+.block-body.collapsed {
+    min-height: 50px; /* Smaller height for collapsed state */
+    padding: 10px; /* Adjust padding */
+}
+
+/* Hover state for dragging */
+.block-body:hover {
+    border: 3px solid #ff9800; /* Highlight with orange on hover */
+    background-color: #444444; /* Slightly lighter grey on hover */
+}
+
+/* Dragging over state */
+.block-body.drag-over {
+    border: 3px solid #ff9800; /* Orange border to indicate drop area */
+    background-color: #444444; /* Slightly lighter grey */
+}
+
+/* Empty state for the parent block */
+.block-body.empty p {
+    color: #aaaaaa;
+    font-style: italic; /* Make the placeholder text italic for emphasis */
+}
+
+/* Draggable child block styles */
+.draggable-block {
+    background-color: #4caf50; /* Green block background */
+    color: #ffffff; /* White text for the block */
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 3px; /* Rounded corners */
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Space between block content and remove button */
+    cursor: grab; /* Visual cue for draggable blocks */
+    transition: transform 0.2s ease; /* Smooth dragging feedback */
+}
+
+/* Dragging style for draggable block */
+.draggable-block:active {
+    cursor: grabbing;
+    opacity: 0.8; /* Make the block slightly transparent while dragging */
+    transform: scale(1.05); /* Slightly enlarge the block for feedback */
+}
+
+/* Remove button for child blocks */
+.draggable-block button {
+    background-color: #ff5722; /* Red background for remove button */
+    color: #ffffff; /* White text */
+    border: none;
+    border-radius: 3px; /* Rounded corners */
+    padding: 5px;
+    margin-left: 10px; /* Space from block content */
+    cursor: pointer; /* Clickable button */
+    font-size: 12px;
+}
+
+/* Remove button hover state */
+.draggable-block button:hover {
+    background-color: #e64a19; /* Darker red for hover effect */
+}

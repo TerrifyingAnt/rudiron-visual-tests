@@ -1,4 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
+// import '../../style/vars.css';
+// import '../../style/fonts.css';
 
 interface BlockProps {
     id: string;
@@ -95,8 +97,8 @@ const Block: React.FC<BlockProps> = ({ id, type, position, children, code, onMov
                 top: position.y,
                 cursor: dragging ? "grabbing" : "grab",
                 userSelect: "none",
-                padding: "10px",
-                borderRadius: "5px",
+                padding: "8px",
+                borderRadius: "20px",
                 color: "#fff", // Белый текст
                 border: "none", // Убираем любую обводку
                 boxShadow: dragging

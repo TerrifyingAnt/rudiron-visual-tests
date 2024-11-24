@@ -1,0 +1,97 @@
+/* Основной контейнер блока */
+.variable-block {
+    display: flex;
+    flex-direction: column;
+    background-color: #4caf50; /* Зелёный фон */
+    border: 2px solid #76d275; /* Зелёная обводка */
+    border-radius: 12px;
+    padding: 16px;
+    position: relative;
+    color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Тень */
+    font-family: "Arial", sans-serif;
+    cursor: grab;
+    width: 100%; /* Ширина блока */
+    min-width: 320px; /* Минимальная ширина */
+}
+
+/* Ряд для размещения полей в одну строчку */
+.variable-row {
+    display: flex;
+    gap: 16px; /* Отступ между элементами */
+    align-items: center; /* Выравнивание по центру */
+    width: 100%;
+}
+
+/* Заголовки для полей */
+.variable-label {
+    position: absolute;
+    top: -12px; /* Наполовину перекрывает поле */
+    left: 16px;
+    background-color: #2b2b2b; /* Фон заголовка */
+    padding: 4px 8px;
+    border-radius: 8px;
+    color: #76d275; /* Зелёный цвет текста */
+    font-size: 12px;
+    font-weight: bold;
+    border: 1px solid #76d275;
+}
+/* Заголовки для полей */
+.variable-type {
+    position: absolute;
+    top: -12px; /* Наполовину перекрывает поле */
+    left: 240px;
+    background-color: #2b2b2b; /* Фон заголовка */
+    padding: 4px 8px;
+    border-radius: 8px;
+    color: #76d275; /* Зелёный цвет текста */
+    font-size: 12px;
+    font-weight: bold;
+    border: 1px solid #76d275;
+}
+
+/* Выпадающий список */
+.variable-dropdown {
+    background-color: #1e1e1e; /* Тёмный фон */
+    color: white;
+    border: 1px solid #444444; /* Тёмная обводка */
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-family: "Arial", sans-serif;
+    font-size: 14px;
+    outline: none;
+    flex: 1; /* Занимает доступное пространство */
+    cursor: pointer;
+    appearance: none; /* Убираем стандартный стиль браузера */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23FFFFFF'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); /* Иконка стрелки */
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+}
+
+/* Поле ввода */
+.variable-input {
+    background-color: #1e1e1e; /* Тёмный фон */
+    color: white;
+    border: 1px solid #444444; /* Тёмная обводка */
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-family: "Arial", sans-serif;
+    font-size: 14px;
+    outline: none;
+    flex: 2; /* Поле ввода шире, чем выпадающий список */
+    box-sizing: border-box;
+}
+
+/* Обводка на hover */
+.variable-dropdown:hover,
+.variable-input:hover {
+    border-color: #76d275; /* Зелёная обводка */
+}
+
+/* Анимация при наведении */
+.variable-block:hover {
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
+    transform: translateY(-2px);
+    transition: all 0.2s ease-in-out;
+}
