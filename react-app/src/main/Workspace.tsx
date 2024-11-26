@@ -573,14 +573,17 @@ const Workspace: React.FC = () => {
         },
         {
             id: "if",
-            label: "Условие",
+            label: "Если кнопка, то",
             createBlock: () => (
                 <ConditionBlock
                     key={Date.now()}
                     id={Date.now().toString()}
                     position={{ x: 0, y: 0 }}
                     onMove={moveBlock}
-                    code="if "
+                    code="if (digitalRead(35) == HIGH)"
+                    onNest={nestBlock}
+                    onUnnest={unnestBlock}
+                    childrenBlocks={[]}
                     onCodeChange={updateBlockCode}
                 />
             ),

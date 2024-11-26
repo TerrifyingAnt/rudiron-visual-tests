@@ -71,18 +71,20 @@ const ForBlock: React.FC<ForBlockProps> = ({
             onMove={onMove}
         >
             <div className="for-block">
-                <div className="for-header">
-                    <label>Количество повторений:</label>
+                <div className="for-block-header">
+                    Количество повторений
+                </div>
+                <div className="for-block-input-container">
                     <input
                         type="number"
                         value={iterations || ""}
                         onChange={handleIterationsChange}
-                        placeholder="Введите число"
-                        className="for-input"
+                        className="for-block-input"
+                        placeholder="Введите количество раз" // Плейсхолдер для поля ввода
                     />
                 </div>
                 <div
-                    className="for-body"
+                    className={`for-block-body ${localChildren.length === 0 ? "empty" : ""}`}
                     onDragOver={handleDragOver}
                     onDrop={handleDrop}
                 >
@@ -90,7 +92,7 @@ const ForBlock: React.FC<ForBlockProps> = ({
                         <p className="for-placeholder">Перетащите блоки сюда</p>
                     ) : (
                         localChildren.map((childId) => (
-                            <div key={childId} className="child-block">
+                            <div key={childId} className="draggable-block">
                                 {`Block ${childId}`}
                                 <button onClick={() => handleRemoveChild(childId)}>Удалить</button>
                             </div>

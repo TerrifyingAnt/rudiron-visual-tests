@@ -9,6 +9,9 @@ interface IfBlockProps {
     onMove: (id: string, position: { x: number; y: number }) => void;
     code: string; // Код передается в блок
     onCodeChange: (id: string, newCode: string) => void; // Колбэк для обновления кода
+    onNest: (parentId: string, childId: string) => void; // Функция для добавления вложенного блока
+    onUnnest: (parentId: string, childId: string) => void; // Функция для удаления вложенного блока
+    childrenBlocks: string[]; // Список вложенных блоков
 }
 
 const IfBlock: React.FC<IfBlockProps> = ({
@@ -16,128 +19,134 @@ const IfBlock: React.FC<IfBlockProps> = ({
     position,
     onMove,
     code,
-    onCodeChange
+    onCodeChange,
+    onNest,
+    onUnnest,
+    childrenBlocks,
 }) => {
-    const [leftOperand, setLeftOperand] = useState<string | null>(null);
-    const [operator, setOperator] = useState("==");
-    const [rightOperand, setRightOperand] = useState<string | null>(null);
+    const [leftOperand, setLeftOperand] = useState<string | null>(null); // Значение по умолчанию
+    const [rightOperand, setRightOperand] = useState<string | null>(null); // Значение по умолчанию
+    const [localChildren, setLocalChildren] = useState<string[]>(childrenBlocks);
     const [isDraggingEnabled, setIsDraggingEnabled] = useState(true);
-    const { variables } = useVariableContext();
 
-    // Получение уникальных имен переменных
-    const uniqueVariables = Array.from(
-        new Set(variables.map((variable) => variable.name.split(" ")[0])) // Берем только название переменной
-    );
-
-    const operators = [
-        "==", "!=", ">", "<", ">=", "<=" // Операторы сравнения
+    // Доступные значения
+    const numberOptions = [
+        { label: "Кнопка 1", value: "35" },
+        { label: "Кнопка 2", value: "31" },
+        { label: "Кнопка 3", value: "32" },
+    ];
+    const highLowOptions = [
+        { label: "Кнопка нажата", value: "HIGH" },
+        { label: "Кнопка не нажата", value: "LOW" },
     ];
 
-    // Функция для генерации кода
-    const generateCode = (
-        left: string | null,
-        op: string,
-        right: string | null
-    ): string => {
-        if (left && right) {
-            return `if (${left} ${op} ${right}) {\n    // TODO: Add logic\n}`;
+    // Генерация кода
+    const generateCode = (): string => {
+        if (leftOperand && rightOperand) {
+            const conditionCode = `if (${leftOperand} == ${rightOperand}) {\n`;
+            const childrenCode = localChildren.map((childId) => `    // Block ${childId}`).join("\n");
+            return `${conditionCode}${childrenCode}\n}`;
         }
         return "// Не выбраны операнды";
     };
 
-    // Обновление `code` при изменении операндов или оператора
+    // Синхронизация состояния с пропсами
     useEffect(() => {
-        const newCode = generateCode(leftOperand, operator, rightOperand);
+        setLocalChildren(childrenBlocks);
+    }, [childrenBlocks]);
+
+    // Обновление кода
+    useEffect(() => {
+        const newCode = generateCode();
         if (typeof onCodeChange === "function") {
             onCodeChange(id, newCode);
         } else {
             console.warn("onCodeChange prop is missing or not a function.");
         }
-    }, [leftOperand, operator, rightOperand, id, onCodeChange]);
+    }, [leftOperand, rightOperand, localChildren, id, onCodeChange]);
 
-    // Обработчик выбора левого операнда
-    const handleLeftOperandChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        setLeftOperand(event.target.value);
+    // Управление добавлением вложенных блоков
+    const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+        event.preventDefault();
+        const childId = event.dataTransfer.getData("blockId");
+        if (childId && !localChildren.includes(childId)) {
+            onNest(id, childId);
+        }
     };
 
-    // Обработчик выбора оператора
-    const handleOperatorChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        setOperator(event.target.value);
+    const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+        event.preventDefault();
     };
 
-    // Обработчик выбора правого операнда
-    const handleRightOperandChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        setRightOperand(event.target.value);
+    const handleRemoveChild = (childId: string) => {
+        onUnnest(id, childId);
     };
-
-    // Управление перетаскиванием
-    const disableDragging = () => setIsDraggingEnabled(false);
-    const enableDragging = () => setIsDraggingEnabled(true);
-
-    const noop = () => {};
 
     return (
         <Block
             id={id}
             type="if"
             position={position}
-            code={generateCode(leftOperand, operator, rightOperand)} // Генерация текущего кода
-            onMove={isDraggingEnabled ? onMove : noop}
+            code={generateCode()} // Генерация текущего кода
+            onMove={isDraggingEnabled ? onMove : () => {}}
         >
             <div className="if-block">
-                {/* Левый операнд */}
-                <label className="if-label">Левая переменная</label>
-                <select
-                    value={leftOperand || ""}
-                    onChange={handleLeftOperandChange}
-                    className="if-dropdown"
-                    onFocus={disableDragging}
-                    onBlur={enableDragging}
-                >
-                    <option value="" disabled>
-                        Выберите переменную
-                    </option>
-                    {uniqueVariables.map((variableName) => (
-                        <option key={variableName} value={variableName}>
-                            {variableName}
+                {/* Поля выбора на одной линии */}
+                <div className="if-row">
+                    {/* Левый операнд */}
+                    <select
+                        value={leftOperand || ""}
+                        onChange={(e) => setLeftOperand(e.target.value)}
+                        className="if-dropdown"
+                        onFocus={() => setIsDraggingEnabled(false)}
+                        onBlur={() => setIsDraggingEnabled(true)}
+                    >
+                        <option value="" disabled>
+                            Выберите кнопку
                         </option>
-                    ))}
-                </select>
+                        {numberOptions.map(({ label, value }) => (
+                            <option key={value} value={value}>
+                                {label}
+                            </option>
+                        ))}
+                    </select>
 
-                {/* Оператор */}
-                <label className="if-label">Оператор</label>
-                <select
-                    value={operator}
-                    onChange={handleOperatorChange}
-                    className="if-dropdown"
-                    onFocus={disableDragging}
-                    onBlur={enableDragging}
-                >
-                    {operators.map((op) => (
-                        <option key={op} value={op}>
-                            {op}
+                    {/* Правый операнд */}
+                    <select
+                        value={rightOperand || ""}
+                        onChange={(e) => setRightOperand(e.target.value)}
+                        className="if-dropdown"
+                        onFocus={() => setIsDraggingEnabled(false)}
+                        onBlur={() => setIsDraggingEnabled(true)}
+                    >
+                        <option value="" disabled>
+                            Выберите состояние
                         </option>
-                    ))}
-                </select>
+                        {highLowOptions.map(({ label, value }) => (
+                            <option key={value} value={value}>
+                                {label}
+                            </option>
+                        ))}
+                    </select>
+                </div>
 
-                {/* Правый операнд */}
-                <label className="if-label">Правая переменная</label>
-                <select
-                    value={rightOperand || ""}
-                    onChange={handleRightOperandChange}
-                    className="if-dropdown"
-                    onFocus={disableDragging}
-                    onBlur={enableDragging}
+                {/* Контейнер для вложенных блоков */}
+                <div
+                    className={`if-body ${localChildren.length === 0 ? "empty" : ""}`}
+                    onDragOver={handleDragOver}
+                    onDrop={handleDrop}
                 >
-                    <option value="" disabled>
-                        Выберите переменную
-                    </option>
-                    {uniqueVariables.map((variableName) => (
-                        <option key={variableName} value={variableName}>
-                            {variableName}
-                        </option>
-                    ))}
-                </select>
+                    {localChildren.length === 0 ? (
+                        <p className="if-placeholder">Перетащите блоки сюда</p>
+                    ) : (
+                        localChildren.map((childId) => (
+                            <div key={childId} className="draggable-block">
+                                {`Block ${childId}`}
+                                <button onClick={() => handleRemoveChild(childId)}>Удалить</button>
+                            </div>
+                        ))
+                    )}
+                </div>
             </div>
         </Block>
     );

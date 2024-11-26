@@ -1,49 +1,136 @@
-/* DelayBlock.css */
+/* Заголовок блока */
+.if-block-header {
+    font-family: var(--font-family-titles);
+    background-color: #3f51b5; /* Синий фон */
+    color: #ffffff; /* Белый текст */
+    padding: 10px 15px;
+    border-radius: 5px 5px 0 0; /* Скругленные верхние углы */
+    text-align: center;
+    font-weight: bold;
+    font-size: 16px;
+}
 
-/* Общий стиль блока задержки */
-.delay-block {
-    background-color: #f9f9f9; /* Светлый фон для блока */
-    border: 2px solid #ccc; /* Серый контур */
-    border-radius: 8px; /* Скругленные углы */
-    padding: 16px; /* Внутренний отступ */
+/* Основное тело блока */
+.if-body {
+    border: 2px dashed #666666; /* Пунктирная рамка */
+    border-radius: 0 0 5px 5px; /* Скругленные нижние углы */
+    padding: 20px;
+    background-color: #333333; /* Темно-серый фон */
+    min-height: 100px; /* Минимальная высота */
+    min-width: 200px;
+    transition: border 0.2s ease, background-color 0.2s ease, min-height 0.3s ease; /* Плавные изменения */
     display: flex;
     flex-direction: column;
-    gap: 8px; /* Расстояние между элементами */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Легкая тень */
-    transition: border-color 0.3s, box-shadow 0.3s;
+    gap: 15px; /* Расстояние между вложенными элементами */
+    align-items: center;
+    color: #cccccc; /* Светло-серый текст */
 }
 
-.delay-block.error {
-    border-color: #ff6b6b; /* Красная рамка для ошибок */
-    box-shadow: 0 4px 8px rgba(255, 107, 107, 0.5); /* Красноватая тень */
+/* Состояние блока без вложенных элементов */
+.if-body.empty p {
+    color: #aaaaaa; /* Более светлый серый текст */
+    font-style: italic; /* Курсив для текста */
 }
 
-/* Метка для ввода значения задержки */
-.delay-value-label {
-    font-size: 14px;
-    font-weight: bold;
-    color: #333; /* Темный цвет текста */
+/* Hover-эффект для блока */
+.if-body:hover {
+    border: 3px solid #ff9800; /* Оранжевая рамка при наведении */
+    background-color: #444444; /* Более светлый серый фон */
 }
 
-/* Ввод для значения задержки */
-.delay-value-input {
-    flex: 1; /* Занимает всю доступную ширину */
-    padding: 8px; /* Внутренний отступ */
+/* Список для выбора значений */
+.if-dropdown {
+    padding: 10px;
+    margin: 10px 0;
     border: 1px solid #ccc; /* Серый контур */
     border-radius: 4px; /* Скругленные углы */
-    font-size: 14px; /* Размер шрифта */
-    transition: border-color 0.3s;
+    font-size: 14px;
+    width: 100%; /* Растянуть по ширине контейнера */
+    background-color: #ffffff; /* Белый фон */
+    color: #333333; /* Темный текст */
+    transition: border-color 0.2s ease;
 }
 
-.delay-value-input:focus {
-    border-color: #4caf50; /* Зеленый контур при фокусе */
-    outline: none; /* Убираем стандартный фокус */
+/* Фокус на выпадающем списке */
+.if-dropdown:focus {
+    border-color: #3f51b5; /* Синий контур при фокусе */
+    outline: none; /* Убрать стандартный фокус */
 }
 
-/* Единица измерения задержки */
-.delay-value-unit {
+/* Надпись для полей */
+.if-label {
     font-size: 14px;
     font-weight: bold;
-    color: #666; /* Серый текст */
-    margin-left: 8px; /* Отступ слева */
+    color: #cccccc; /* Светло-серый текст */
+    margin-bottom: 5px;
+}
+
+/* Вложенные блоки */
+.draggable-block {
+    background-color: #4caf50; /* Зеленый фон вложенного блока */
+    color: #ffffff; /* Белый текст */
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 3px; /* Скругленные углы */
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Расстояние между текстом и кнопкой */
+    cursor: grab; /* Указатель для перетаскивания */
+    transition: transform 0.2s ease; /* Плавные изменения при перетаскивании */
+}
+
+/* Стиль при перетаскивании вложенного блока */
+.draggable-block:active {
+    cursor: grabbing;
+    opacity: 0.8; /* Легкая прозрачность */
+    transform: scale(1.05); /* Увеличение размера */
+}
+
+/* Кнопка удаления вложенного блока */
+.draggable-block button {
+    background-color: #ff5722; /* Красный фон */
+    color: #ffffff; /* Белый текст */
+    border: none;
+    border-radius: 3px; /* Скругленные углы */
+    padding: 5px;
+    cursor: pointer; /* Указатель для клика */
+    font-size: 12px;
+}
+
+/* Hover-эффект для кнопки удаления */
+.draggable-block button:hover {
+    background-color: #e64a19; /* Темно-красный фон */
+}
+
+
+.div.if-row {
+    background: #D13A9A;
+}
+/* Блок для размещения полей выбора в строку */
+.if-row {
+    display: flex;
+    align-items: center;
+    background: #D13A9A;
+    gap: 15px; /* Расстояние между полями */
+    width: 100%; /* Занимает всю ширину контейнера */
+    margin-bottom: 15px; /* Отступ от следующего элемента */
+}
+
+/* Dropdown меню */
+.if-dropdown {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    width: 45%; /* Поля равной ширины */
+    background-color: #ffffff;
+    color: #333333;
+    transition: border-color 0.2s ease;
+    box-sizing: border-box; /* Учитывает padding в ширине */
+}
+
+/* Эффект при фокусе */
+.if-dropdown:focus {
+    border-color: #3f51b5;
+    outline: none;
 }

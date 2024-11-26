@@ -1,60 +1,105 @@
-/* ForBlock.css */
+/* Header for the for block */
+.for-block-header {
+    font-family: var(--font-family-titles);
+    background-color: #4D74F4; /* Green header */
+    color: #ffffff; /* White text */
+    padding: 10px 15px;
+    border-radius: 5px 5px 0 0; /* Rounded corners for the top */
+    text-align: center;
+    font-weight: bold;
+    font-size: 16px;
+}
 
-/* Стиль основного блока */
-.for-block {
-    background-color: #f5f5f5;
-    border: 2px solid #ccc;
-    border-radius: 8px;
-    padding: 16px;
+/* Body of the for block */
+.for-block-body {
+    border: 2px dashed #666666; /* Dashed border */
+    border-radius: 0 0 5px 5px; /* Bottom rounded corners */
+    padding: 20px;
+    background-color: #333333; /* Dark grey background */
+    min-height: 100px; /* Maintain minimum size */
+    transition: border 0.2s ease, background-color 0.2s ease, min-height 0.3s ease; /* Smooth resizing */
     display: flex;
     flex-direction: column;
-    gap: 8px;
-}
-
-/* Заголовок */
-.for-header {
-    display: flex;
+    gap: 15px; /* Space between elements inside the block */
     align-items: center;
-    gap: 8px;
+    color: #cccccc; /* Light grey placeholder text */
 }
 
-.for-header label {
+/* Dragging over state */
+.for-block-body.drag-over {
+    border: 3px solid #ff9800; /* Highlight with orange on hover */
+    background-color: #444444; /* Slightly lighter grey */
+}
+
+/* Empty state for the for block */
+.for-block-body.empty p {
+    color: #aaaaaa;
+    font-style: italic; /* Italic placeholder text */
+}
+
+/* Input for iterations */
+.for-block-input-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 8px; /* Space between label and input */
+}
+
+.for-block-input-label {
     font-size: 14px;
     font-weight: bold;
-    color: #333;
+    color: #cccccc; /* Light grey text */
 }
 
-.for-input {
-    padding: 8px;
-    border: 1px solid #ccc;
+.for-block-input {
+    padding: 10px;
+    border: 1px solid #ccc; /* Grey border */
     border-radius: 4px;
     font-size: 14px;
-    flex: 1;
+    width: 100%;
+    box-sizing: border-box; /* Ensure padding doesn't affect width */
+    background-color: #ffffff; /* White input background */
+    color: #333333; /* Dark text for readability */
 }
 
-/* Контейнер для вложенных блоков */
-.for-body {
-    border: 1px dashed #ccc;
-    border-radius: 8px;
-    padding: 16px;
-    min-height: 100px;
-    background-color: #fafafa;
-    text-align: center;
+.for-block-input:focus {
+    border-color: #4caf50; /* Green border on focus */
+    outline: none; /* Remove default focus outline */
 }
 
-.for-placeholder {
-    color: #888;
-    font-size: 14px;
-}
-
-/* Вложенные блоки */
-.child-block {
+/* Nested blocks inside the for block */
+.draggable-block {
+    background-color: #4caf50; /* Green block background */
+    color: #ffffff; /* White text */
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 3px; /* Rounded corners */
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 8px;
-    background-color: #e8e8e8;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    margin-bottom: 8px;
+    justify-content: space-between; /* Space between block content and remove button */
+    cursor: grab; /* Visual cue for draggable blocks */
+    transition: transform 0.2s ease; /* Smooth dragging feedback */
+}
+
+/* Dragging style for nested blocks */
+.draggable-block:active {
+    cursor: grabbing;
+    opacity: 0.8; /* Make the block slightly transparent while dragging */
+    transform: scale(1.05); /* Slightly enlarge the block for feedback */
+}
+
+/* Remove button for nested blocks */
+.draggable-block button {
+    background-color: #ff5722; /* Red background for remove button */
+    color: #ffffff; /* White text */
+    border: none;
+    border-radius: 3px; /* Rounded corners */
+    padding: 5px;
+    cursor: pointer; /* Clickable button */
+    font-size: 12px;
+}
+
+/* Remove button hover state */
+.draggable-block button:hover {
+    background-color: #e64a19; /* Darker red for hover effect */
 }
